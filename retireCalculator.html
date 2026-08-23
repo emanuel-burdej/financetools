@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="sk" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<meta name="referrer" content="no-referrer" />
+<title>Retire Calculator</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234f46e5'/%3E%3Cpath d='M7 22.5V11h2.4v8.8H24V22.5H7z' fill='%23fff' opacity='.22'/%3E%3Cpath d='M8.5 20.5l5.2-6.2 3.2 3.1L23 10' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='23' cy='10' r='2.6' fill='%23fbbf24'/%3E%3C/svg%3E" />
+<style>
+:root {
+  --bg: #fafbfc;
+  --surface: #ffffff;
+  --elevated: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --faint: #9ca3af;
+  --line: #e5e7eb;
+  --line-2: #f3f4f6;
+  --accent: #6366f1;
+  --accent-soft: rgba(99, 102, 241, 0.12);
+  --green: #16a34a;
+  --target: #f59e0b;
+  --portfolio: #6366f1;
+  --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+  --focus: 0 0 0 3px rgba(99, 102, 241, 0.28);
+  --nav-bg: rgba(255,255,255,.92);
+  --th-bg: #f9fafb;
+  --chart-grid: #e5e7eb;
+  --chart-axis: #9ca3af;
+  --field-bg: #ffffff;
+  --field-border: #d1d5db;
+  --slider: #6366f1;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1a1b1e;
+  --surface: #24262b;
+  --elevated: #32353c;
+  --ink: #f5f6f7;
+  --muted: #9aa0a6;
+  --faint: #7a8088;
+  --line: #34373e;
+  --line-2: #2c2e34;
+  --accent: #818cf8;
+  --accent-soft: rgba(129, 140, 248, 0.16);
+  --green: #16a34a;
+  --target: #fbbf24;
+  --portfolio: #818cf8;
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.25);
+  --focus: 0 0 0 3px rgba(129, 140, 248, 0.35);
+  --nav-bg: rgba(26, 27, 30, .92);
+  --th-bg: #2a2c32;
+  --chart-grid: #34373e;
+  --chart-axis: #c5cad3;
+  --field-bg: #2c2e34;
+  --field-border: #3f434c;
+  --slider: #818cf8;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh;
+  font-family: var(--sans); color: var(--ink);
+  background: var(--bg); line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+button, input { font: inherit; }
+:focus-visible { outline: none; box-shadow: var(--focus); }
+
+.shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--nav-bg);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.topnav-inner {
+  max-width: 1180px; margin: 0 auto;
+  padding: 0 20px;
+  display: flex; align-items: center; gap: 16px;
+  min-height: 48px;
+}
+.app-dd { position: relative; flex-shrink: 0; }
+.app-dd-btn {
+  appearance: none; border: 0; background: transparent;
+  font: inherit; font-weight: 700; font-size: .9rem; letter-spacing: -.02em;
+  color: var(--ink); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 7px; border-radius: 8px; white-space: nowrap;
+}
+.app-dd-btn:hover { background: var(--line-2); }
+.app-dd-btn .accent { color: var(--accent); }
+.app-dd-btn .chev {
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--muted);
+  margin-top: 2px;
+}
+.app-dd.open .app-dd-btn .chev { transform: rotate(180deg); }
+.app-dd-menu {
+  display: none;
+  position: absolute; top: calc(100% + 10px); left: 0; z-index: 110;
+  min-width: 200px;
+  background: var(--elevated);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 14px 36px rgba(0,0,0,.55);
+  padding: 6px;
+}
+.app-dd.open .app-dd-menu { display: block; }
+.app-dd-menu a {
+  display: block;
+  color: var(--ink); text-decoration: none;
+  font-size: .8125rem; font-weight: 600;
+  padding: 9px 12px; border-radius: 8px; white-space: nowrap;
+}
+.app-dd-menu a:hover { background: var(--line-2); }
+.app-link-tracker span { color: #e30613; }
+.app-link-calc span { color: #16a34a; }
+.app-link-retire span { color: var(--accent); }
+.nav-actions { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.pref-toggles { display: inline-flex; align-items: center; gap: 6px; }
+.pref-btn {
+  appearance: none; border: 1px solid var(--line); background: var(--surface);
+  color: var(--muted); border-radius: 8px; padding: 5px 9px;
+  cursor: pointer; font-weight: 700; font-size: .75rem;
+  letter-spacing: .03em; line-height: 1; min-width: 38px;
+}
+.pref-btn:hover { color: var(--ink); background: var(--line-2); }
+.pref-btn.theme-btn {
+  min-width: 38px; font-size: .95rem; color: var(--ink); background: var(--line-2);
+}
+
+.app { max-width: 1180px; margin: 0 auto; padding: 16px 20px 48px; width: 100%; }
+
+.retire-hero {
+  margin-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+.retire-hero .label {
+  font-size: .875rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.retire-hero .years {
+  font-size: 1.35rem;
+  font-weight: 750;
+  letter-spacing: -.02em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.retire-hero .years.ready { color: var(--green); }
+.retire-hero .years.never { color: var(--faint); font-size: 1rem; }
+.retire-hero .hint {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: .75rem;
+  color: var(--faint);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+  margin-bottom: 12px;
+}
+
+.panel {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  overflow: hidden;
+  min-width: 0;
+}
+.panel-body { padding: 12px; }
+.panel-chart .panel-body { padding: 10px 12px 12px; }
+
+.field {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 11px;
+}
+.field:last-of-type { margin-bottom: 0; }
+.field-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.field-top label {
+  font-size: .75rem;
+  font-weight: 650;
+  color: var(--muted);
+}
+.control {
+  display: flex;
+  align-items: center;
+  min-width: 96px;
+  height: 28px;
+  padding: 0 7px;
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: 6px;
+}
+.control:focus-within { box-shadow: var(--focus); }
+.prefix, .suffix {
+  flex-shrink: 0;
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.prefix { margin-right: 3px; }
+.suffix { margin-left: 4px; }
+.input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  padding: 0;
+  font-size: .8125rem;
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.input:focus { outline: none; }
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--line);
+  outline: none;
+  cursor: pointer;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--slider);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  cursor: pointer;
+}
+.slider::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--slider);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  cursor: pointer;
+}
+
+.chart-box { position: relative; width: 100%; }
+.chart-tip {
+  position: absolute;
+  z-index: 5;
+  min-width: 160px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  background: #2a2c32;
+  color: #f5f6f7;
+  border: 1px solid var(--line);
+  font-size: .72rem;
+  line-height: 1.35;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  display: none;
+  transform: translate(-50%, -110%);
+}
+.chart-tip.visible { display: block; }
+.chart-legend {
+  display: flex; flex-wrap: wrap; gap: 10px 14px;
+  margin-top: 8px; font-size: .7rem; color: var(--muted);
+}
+.chart-legend i {
+  display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px;
+}
+.chart-legend .line {
+  display: inline-block; width: 12px; height: 0;
+  border-top: 2px dashed var(--target); margin-right: 5px; vertical-align: middle;
+}
+
+.below {
+  display: grid;
+  gap: 12px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.kpi-card {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.kpi-card span {
+  display: block;
+  font-size: .7rem;
+  font-weight: 650;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.kpi-card strong {
+  display: block;
+  font-family: var(--mono);
+  font-size: .875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-card.accent strong { color: var(--accent); }
+
+.section-label {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin: 0 0 8px;
+}
+
+.table-wrap { overflow: auto; max-height: 340px; border: 1px solid var(--line); border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; font-size: .75rem; }
+th, td {
+  padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--line);
+}
+th {
+  position: sticky; top: 0;
+  background: var(--th-bg); color: var(--muted);
+  font-weight: 700; font-size: .68rem; text-transform: uppercase;
+  letter-spacing: .03em;
+}
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+tbody tr:nth-child(even) td { background: var(--line-2); }
+tr.retire-row td {
+  background: var(--accent-soft) !important;
+  font-weight: 650;
+}
+.progress-cell {
+  display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+}
+.progress-bar {
+  width: 44px; height: 3px; border-radius: 99px;
+  background: var(--line); overflow: hidden;
+}
+.progress-bar > span {
+  display: block; height: 100%; background: var(--accent); border-radius: 99px;
+}
+
+@media (max-width: 900px) {
+  .workspace { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .topnav-inner, .app { padding-left: 14px; padding-right: 14px; }
+  .kpi-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topnav">
+    <div class="topnav-inner">
+      <div class="app-dd" id="appDd">
+        <button type="button" class="app-dd-btn" id="appDdBtn" aria-haspopup="listbox" aria-expanded="false">
+          Retire <span class="accent">Calculator</span>
+          <i class="chev" aria-hidden="true"></i>
+        </button>
+        <div class="app-dd-menu" role="listbox">
+          <a href="xtbTracker.html" class="app-link-tracker">XTB <span>Tracker</span></a>
+          <a href="investmentCalculator.html" class="app-link-calc">Invest <span>Calculator</span></a>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <div class="pref-toggles" aria-label="Preferences">
+          <button type="button" class="pref-btn" id="langToggle" title="Language">SK</button>
+          <button type="button" class="pref-btn theme-btn" id="themeToggle" title="Dark mode" aria-label="Theme">☾</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app">
+    <div class="retire-hero" id="retireHero">
+      <span class="label" data-i18n="youCanRetire">You can retire in</span>
+      <span class="years" id="retireYears">—</span>
+      <p class="hint" id="retireHint"></p>
+    </div>
+
+    <div class="workspace">
+      <section class="panel panel-inputs">
+        <div class="panel-body">
+          <div class="field">
+            <div class="field-top">
+              <label for="portfolio" data-i18n="portfolio">Súčasná hodnota portfólia</label>
+              <div class="control">
+                <span class="prefix">€</span>
+                <input class="input" id="portfolio" type="number" min="0" step="1000" value="50000" />
+              </div>
+            </div>
+            <input class="slider" id="portfolioSlider" type="range" min="0" max="500000" step="1000" value="50000" />
+          </div>
+
+          <div class="field">
+            <div class="field-top">
+              <label for="monthlyInvest" data-i18n="monthlyInvest">Mesačný vklad</label>
+              <div class="control">
+                <span class="prefix">€</span>
+                <input class="input" id="monthlyInvest" type="number" min="0" step="50" value="200" />
+              </div>
+            </div>
+            <input class="slider" id="monthlyInvestSlider" type="range" min="0" max="5000" step="50" value="200" />
+          </div>
+
+          <div class="field">
+            <div class="field-top">
+              <label for="returnRate" data-i18n="returnRate">Očakávaný výnos</label>
+              <div class="control">
+                <input class="input" id="returnRate" type="number" min="0" max="20" step="0.1" value="5" />
+                <span class="suffix">%</span>
+              </div>
+            </div>
+            <input class="slider" id="returnRateSlider" type="range" min="0" max="15" step="0.1" value="5" />
+          </div>
+
+          <div class="field">
+            <div class="field-top">
+              <label for="monthlySpend" data-i18n="monthlySpend">Mesačné výdavky</label>
+              <div class="control">
+                <span class="prefix">€</span>
+                <input class="input" id="monthlySpend" type="number" min="0" step="50" value="750" />
+              </div>
+            </div>
+            <input class="slider" id="monthlySpendSlider" type="range" min="100" max="10000" step="50" value="750" />
+          </div>
+
+          <div class="field">
+            <div class="field-top">
+              <label for="withdrawRate" data-i18n="withdrawRate">Ročný výber</label>
+              <div class="control">
+                <input class="input" id="withdrawRate" type="number" min="1" max="10" step="0.1" value="4" />
+                <span class="suffix">%</span>
+              </div>
+            </div>
+            <input class="slider" id="withdrawRateSlider" type="range" min="2" max="8" step="0.1" value="4" />
+          </div>
+        </div>
+      </section>
+
+      <section class="panel panel-chart">
+        <div class="panel-body">
+          <div class="chart-box">
+            <canvas id="pathChart" width="540" height="280" aria-label="Retirement path chart"></canvas>
+            <div id="chartTip" class="chart-tip" hidden></div>
+          </div>
+          <div class="chart-legend">
+            <span><i style="background:var(--portfolio)"></i><span data-i18n="legendPortfolio">Portfólio</span></span>
+            <span><span class="line"></span><span data-i18n="legendTarget">Cieľ (4% pravidlo)</span></span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="below">
+      <div>
+        <p class="section-label" data-i18n="results">Výsledky</p>
+        <div class="kpi-grid">
+          <div class="kpi-card accent"><span data-i18n="targetPortfolio">Cieľové portfólio</span><strong id="kpiTarget">—</strong></div>
+          <div class="kpi-card"><span data-i18n="annualSpend">Ročné výdavky</span><strong id="kpiAnnual">—</strong></div>
+          <div class="kpi-card"><span data-i18n="safeWithdraw">Bezpečný ročný výber</span><strong id="kpiWithdraw">—</strong></div>
+          <div class="kpi-card"><span data-i18n="gap">Do cieľa chýba</span><strong id="kpiGap">—</strong></div>
+          <div class="kpi-card"><span data-i18n="totalContrib">Celkové vklady do dôchodku</span><strong id="kpiContrib">—</strong></div>
+          <div class="kpi-card"><span data-i18n="retireBalance">Portfólio pri dôchodku</span><strong id="kpiBalance">—</strong></div>
+        </div>
+      </div>
+
+      <div>
+        <p class="section-label" data-i18n="schedule">Harmonogram</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="colYear">Rok</th>
+                <th class="num" data-i18n="colDeposit">Vklady</th>
+                <th class="num" data-i18n="colGrowth">Výnos</th>
+                <th class="num" data-i18n="colBalance">Zostatok</th>
+                <th class="num" data-i18n="colProgress">Progres</th>
+              </tr>
+            </thead>
+            <tbody id="schedBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const I18N = {
+  sk: {
+    inputs: 'Vstupy', results: 'Výsledky', chartTitle: 'Cesta k dôchodku', schedule: 'Harmonogram',
+    portfolio: 'Súčasná hodnota portfólia', monthlyInvest: 'Mesačný vklad',
+    returnRate: 'Očakávaný výnos', monthlySpend: 'Mesačné výdavky', withdrawRate: 'Ročný výber',
+    ruleNote: 'Pravidlo 4 %: cieľové portfólio = ročné výdavky ÷ výberová sadzba. Pri 4 % môžeš z portfólia bezpečne čerpať každý rok.',
+    youCanRetire: 'Môžeš ísť do dôchodku o',
+    yearsUnit: '{n} rokov',
+    yearUnit: '{n} rok',
+    yearsUnitFew: '{n} roky',
+    canRetireNow: 'Môžeš ísť do dôchodku teraz',
+    neverRetire: 'S týmito parametrami cieľ nedosiahneš',
+    hintTarget: 'Cieľ podľa {rate}% pravidla: {target}',
+    targetPortfolio: 'Cieľové portfólio',
+    annualSpend: 'Ročné výdavky',
+    safeWithdraw: 'Bezpečný ročný výber',
+    gap: 'Do cieľa chýba',
+    totalContrib: 'Celkové vklady do dôchodku',
+    retireBalance: 'Portfólio pri dôchodku',
+    legendPortfolio: 'Portfólio',
+    legendTarget: 'Cieľ (pravidlo výberu)',
+    colYear: 'Rok', colDeposit: 'Vklady', colGrowth: 'Výnos', colBalance: 'Zostatok', colProgress: 'Progres',
+    tipYear: 'Rok {n}', tipPortfolio: 'Portfólio', tipTarget: 'Cieľ',
+    themeToDark: 'Tmavý režim', themeToLight: 'Svetlý režim',
+  },
+  en: {
+    inputs: 'Inputs', results: 'Results', chartTitle: 'Path to retirement', schedule: 'Schedule',
+    portfolio: 'Current portfolio value', monthlyInvest: 'Monthly investment',
+    returnRate: 'Expected return', monthlySpend: 'Monthly expenses', withdrawRate: 'Annual withdrawal',
+    ruleNote: '4% rule: target portfolio = annual expenses ÷ withdrawal rate. At 4% you can safely draw from the portfolio each year.',
+    youCanRetire: 'You can retire in',
+    yearsUnit: '{n} years',
+    yearUnit: '{n} year',
+    yearsUnitFew: '{n} years',
+    canRetireNow: 'You can retire now',
+    neverRetire: 'With these inputs you never reach the target',
+    hintTarget: 'Target by the {rate}% rule: {target}',
+    targetPortfolio: 'Target portfolio',
+    annualSpend: 'Annual expenses',
+    safeWithdraw: 'Safe annual withdrawal',
+    gap: 'Still needed',
+    totalContrib: 'Total contributions until retirement',
+    retireBalance: 'Portfolio at retirement',
+    legendPortfolio: 'Portfolio',
+    legendTarget: 'Target (withdrawal rule)',
+    colYear: 'Year', colDeposit: 'Deposits', colGrowth: 'Return', colBalance: 'Balance', colProgress: 'Progress',
+    tipYear: 'Year {n}', tipPortfolio: 'Portfolio', tipTarget: 'Target',
+    themeToDark: 'Dark mode', themeToLight: 'Light mode',
+  },
+};
+
+const prefs = {
+  lang: localStorage.getItem('xtb-lang') || 'sk',
+  theme: localStorage.getItem('xtb-theme') || 'dark',
+};
+
+let state = { result: null };
+
+function t(key, vars) {
+  let s = (I18N[prefs.lang] || I18N.sk)[key] ?? I18N.sk[key] ?? key;
+  if (vars) {
+    for (const [k, v] of Object.entries(vars)) s = s.replace('{' + k + '}', String(v));
+  }
+  return s;
+}
+
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', prefs.theme);
+  const meta = document.querySelector('meta[name="color-scheme"]');
+  if (meta) meta.content = prefs.theme === 'dark' ? 'dark' : 'light';
+}
+
+function applyI18n() {
+  document.documentElement.lang = prefs.lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  const langBtn = document.getElementById('langToggle');
+  if (langBtn) {
+    langBtn.textContent = prefs.lang === 'en' ? 'EN' : 'SK';
+    langBtn.title = prefs.lang === 'en' ? 'English → SK' : 'Slovenčina → EN';
+  }
+  const themeBtn = document.getElementById('themeToggle');
+  if (themeBtn) {
+    const dark = prefs.theme === 'dark';
+    themeBtn.textContent = dark ? '☀' : '☾';
+    themeBtn.title = dark ? t('themeToLight') : t('themeToDark');
+    themeBtn.setAttribute('aria-label', themeBtn.title);
+  }
+  if (state.result) renderAll(state.result);
+}
+
+function setLang(lang) {
+  prefs.lang = lang === 'en' ? 'en' : 'sk';
+  localStorage.setItem('xtb-lang', prefs.lang);
+  applyI18n();
+}
+
+function setTheme(theme) {
+  prefs.theme = theme === 'dark' ? 'dark' : 'light';
+  localStorage.setItem('xtb-theme', prefs.theme);
+  applyTheme();
+  applyI18n();
+}
+
+function bindAppDropdown() {
+  const dd = document.getElementById('appDd');
+  const btn = document.getElementById('appDdBtn');
+  if (!dd || !btn) return;
+  const close = () => {
+    dd.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  };
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = !dd.classList.contains('open');
+    dd.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+}
+
+function money(n) {
+  return new Intl.NumberFormat(prefs.lang === 'en' ? 'en-US' : 'sk-SK', {
+    style: 'currency', currency: 'EUR', maximumFractionDigits: 0,
+  }).format(n || 0);
+}
+
+function moneyExact(n) {
+  return new Intl.NumberFormat(prefs.lang === 'en' ? 'en-US' : 'sk-SK', {
+    style: 'currency', currency: 'EUR', maximumFractionDigits: 2,
+  }).format(n || 0);
+}
+
+function formatYears(years) {
+  const n = Math.round(years * 10) / 10;
+  const text = prefs.lang === 'sk'
+    ? String(n).replace('.', ',')
+    : String(n);
+  if (prefs.lang === 'sk') {
+    if (n === 1) return t('yearUnit', { n: text });
+    if (n > 1 && n < 5) return t('yearsUnitFew', { n: text });
+    return t('yearsUnit', { n: text });
+  }
+  return n === 1 ? t('yearUnit', { n: text }) : t('yearsUnit', { n: text });
+}
+
+function cssVar(name, fallback) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
+
+function readInputs() {
+  return {
+    portfolio: Math.max(0, Number(document.getElementById('portfolio').value) || 0),
+    monthlyInvest: Math.max(0, Number(document.getElementById('monthlyInvest').value) || 0),
+    annualRate: Math.max(0, (Number(document.getElementById('returnRate').value) || 0) / 100),
+    monthlySpend: Math.max(0, Number(document.getElementById('monthlySpend').value) || 0),
+    withdrawRate: Math.max(0.001, (Number(document.getElementById('withdrawRate').value) || 4) / 100),
+  };
+}
+
+function monthsToTarget(pv, pmt, monthlyRate, target) {
+  if (pv >= target) return 0;
+  if (monthlyRate <= 0) {
+    if (pmt <= 0) return Infinity;
+    return (target - pv) / pmt;
+  }
+  const denom = pv + pmt / monthlyRate;
+  if (denom <= 0) return Infinity;
+  const x = (target + pmt / monthlyRate) / denom;
+  if (x <= 1) return 0;
+  return Math.log(x) / Math.log(1 + monthlyRate);
+}
+
+function buildSchedule(pv, pmt, monthlyRate, months, target) {
+  const years = Math.max(1, Math.ceil(months / 12));
+  const chartYears = Math.min(80, Math.max(years + 2, 10));
+  const annual = [];
+  const points = [{ year: 0, balance: pv }];
+  let balance = pv;
+  let totalContrib = 0;
+
+  for (let y = 1; y <= chartYears; y++) {
+    let deposit = 0;
+    let growth = 0;
+    for (let m = 0; m < 12; m++) {
+      const before = balance;
+      balance *= (1 + monthlyRate);
+      growth += balance - before;
+      if (pmt > 0) {
+        balance += pmt;
+        deposit += pmt;
+        totalContrib += pmt;
+      }
+    }
+    const progress = target > 0 ? Math.min(100, (balance / target) * 100) : 100;
+    annual.push({ year: y, deposit, growth, balance, progress, totalContrib });
+    points.push({ year: y, balance });
+  }
+
+  const retireMonths = monthsToTarget(pv, pmt, monthlyRate, target);
+  let retireBalance = pv;
+  let contribUntil = 0;
+  if (Number.isFinite(retireMonths)) {
+    const full = Math.floor(retireMonths);
+    for (let m = 0; m < full; m++) {
+      retireBalance = retireBalance * (1 + monthlyRate) + pmt;
+      contribUntil += pmt;
+    }
+    const frac = retireMonths - full;
+    if (frac > 0) {
+      retireBalance = retireBalance * (1 + monthlyRate * frac) + pmt * frac;
+      contribUntil += pmt * frac;
+    }
+  }
+
+  return { annual, points, totalContrib: contribUntil, retireBalance, chartYears };
+}
+
+function calculate() {
+  const { portfolio, monthlyInvest, annualRate, monthlySpend, withdrawRate } = readInputs();
+  const annualSpend = monthlySpend * 12;
+  const target = annualSpend / withdrawRate;
+  const monthlyRate = annualRate / 12;
+  const months = monthsToTarget(portfolio, monthlyInvest, monthlyRate, target);
+  const years = Number.isFinite(months) ? months / 12 : Infinity;
+  const sched = buildSchedule(portfolio, monthlyInvest, monthlyRate, Number.isFinite(months) ? months : 40 * 12, target);
+
+  return {
+    portfolio,
+    monthlyInvest,
+    annualRate,
+    monthlySpend,
+    withdrawRate,
+    annualSpend,
+    target,
+    months,
+    years,
+    gap: Math.max(0, target - portfolio),
+    ...sched,
+  };
+}
+
+function renderHero(r) {
+  const yearsEl = document.getElementById('retireYears');
+  const labelEl = document.querySelector('#retireHero .label');
+  const hintEl = document.getElementById('retireHint');
+  yearsEl.classList.remove('ready', 'never');
+
+  if (r.years === 0) {
+    labelEl.textContent = '';
+    yearsEl.textContent = t('canRetireNow');
+    yearsEl.classList.add('ready');
+  } else if (!Number.isFinite(r.years)) {
+    labelEl.textContent = '';
+    yearsEl.textContent = t('neverRetire');
+    yearsEl.classList.add('never');
+  } else {
+    labelEl.textContent = t('youCanRetire');
+    yearsEl.textContent = formatYears(r.years);
+  }
+  hintEl.textContent = t('hintTarget', {
+    rate: (Math.round(r.withdrawRate * 1000) / 10).toString().replace('.', prefs.lang === 'sk' ? ',' : '.'),
+    target: money(r.target),
+  });
+}
+
+function renderKpis(r) {
+  document.getElementById('kpiTarget').textContent = money(r.target);
+  document.getElementById('kpiAnnual').textContent = money(r.annualSpend);
+  document.getElementById('kpiWithdraw').textContent = money(r.target * r.withdrawRate);
+  document.getElementById('kpiGap').textContent = money(r.gap);
+  document.getElementById('kpiContrib').textContent = Number.isFinite(r.years) ? money(r.totalContrib) : '—';
+  document.getElementById('kpiBalance').textContent = Number.isFinite(r.years) ? money(r.retireBalance) : '—';
+}
+
+function renderTable(r) {
+  const body = document.getElementById('schedBody');
+  const retireYear = Number.isFinite(r.years) ? Math.ceil(r.years) : null;
+  const rows = r.annual.filter(row => !retireYear || row.year <= Math.max(retireYear, 1));
+  body.innerHTML = rows.map(row => {
+    const isRetire = retireYear != null && row.year === retireYear;
+    const pct = Math.round(row.progress);
+    return `<tr class="${isRetire ? 'retire-row' : ''}">
+      <td>${row.year}</td>
+      <td class="num">${money(row.deposit)}</td>
+      <td class="num">${money(row.growth)}</td>
+      <td class="num">${money(row.balance)}</td>
+      <td class="num"><div class="progress-cell"><span>${pct}%</span><span class="progress-bar"><span style="width:${pct}%"></span></span></div></td>
+    </tr>`;
+  }).join('');
+}
+
+const chartState = { points: [], target: 0, pad: null, bound: false };
+
+function drawChart(r) {
+  const canvas = document.getElementById('pathChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = canvas.clientWidth || 540;
+  const cssH = 260;
+  canvas.width = cssW * dpr;
+  canvas.height = cssH * dpr;
+  canvas.style.width = cssW + 'px';
+  canvas.style.height = cssH + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssW, cssH);
+
+  const pad = { l: 52, r: 16, t: 16, b: 36 };
+  chartState.pad = pad;
+  chartState.points = r.points;
+  chartState.target = r.target;
+  chartState.w = cssW;
+  chartState.h = cssH;
+
+  const maxY = Math.max(r.target * 1.08, ...r.points.map(p => p.balance), 1) * 1.05;
+  const maxX = Math.max(1, r.points[r.points.length - 1].year);
+
+  const xAt = (year) => pad.l + (year / maxX) * (cssW - pad.l - pad.r);
+  const yAt = (val) => pad.t + (1 - val / maxY) * (cssH - pad.t - pad.b);
+
+  ctx.strokeStyle = cssVar('--chart-grid', '#34373e');
+  ctx.lineWidth = 1;
+  ctx.fillStyle = cssVar('--chart-axis', '#9aa0a6');
+  ctx.font = '11px ' + cssVar('--sans', 'sans-serif');
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const v = (maxY / 4) * i;
+    const y = yAt(v);
+    ctx.beginPath();
+    ctx.moveTo(pad.l, y);
+    ctx.lineTo(cssW - pad.r, y);
+    ctx.stroke();
+    ctx.fillText(money(v).replace(/\s/g, '\u00a0'), pad.l - 8, y);
+  }
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  const xTicks = Math.min(8, maxX);
+  for (let i = 0; i <= xTicks; i++) {
+    const year = Math.round((maxX / xTicks) * i);
+    ctx.fillText(String(year), xAt(year), cssH - pad.b + 10);
+  }
+
+  // target line
+  const ty = yAt(r.target);
+  ctx.setLineDash([6, 5]);
+  ctx.strokeStyle = cssVar('--target', '#f59e0b');
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(pad.l, ty);
+  ctx.lineTo(cssW - pad.r, ty);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // area under portfolio
+  const grad = ctx.createLinearGradient(0, pad.t, 0, cssH - pad.b);
+  grad.addColorStop(0, 'rgba(99,102,241,0.28)');
+  grad.addColorStop(1, 'rgba(99,102,241,0.02)');
+  ctx.beginPath();
+  ctx.moveTo(xAt(0), yAt(r.points[0].balance));
+  for (const p of r.points) ctx.lineTo(xAt(p.year), yAt(p.balance));
+  ctx.lineTo(xAt(maxX), cssH - pad.b);
+  ctx.lineTo(xAt(0), cssH - pad.b);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // portfolio line
+  ctx.beginPath();
+  ctx.moveTo(xAt(0), yAt(r.points[0].balance));
+  for (const p of r.points) ctx.lineTo(xAt(p.year), yAt(p.balance));
+  ctx.strokeStyle = cssVar('--portfolio', '#6366f1');
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // retirement marker
+  if (Number.isFinite(r.years) && r.years > 0) {
+    const rx = xAt(Math.min(r.years, maxX));
+    const ry = yAt(r.retireBalance);
+    ctx.beginPath();
+    ctx.arc(rx, ry, 5, 0, Math.PI * 2);
+    ctx.fillStyle = cssVar('--accent', '#6366f1');
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#fff';
+    ctx.stroke();
+  }
+
+  chartState.xAt = xAt;
+  chartState.yAt = yAt;
+  chartState.maxX = maxX;
+  chartState.maxY = maxY;
+}
+
+function bindChartTip() {
+  if (chartState.bound) return;
+  chartState.bound = true;
+  const canvas = document.getElementById('pathChart');
+  const tip = document.getElementById('chartTip');
+  canvas.addEventListener('mousemove', (e) => {
+    if (!chartState.points.length) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const { pad, maxX, points, target, w } = chartState;
+    if (x < pad.l || x > w - pad.r) {
+      tip.classList.remove('visible');
+      tip.hidden = true;
+      return;
+    }
+    const year = Math.round(((x - pad.l) / (w - pad.l - pad.r)) * maxX);
+    const p = points.find(pt => pt.year === year) || points[points.length - 1];
+    tip.innerHTML = `<strong>${t('tipYear', { n: p.year })}</strong><br>${t('tipPortfolio')}: ${money(p.balance)}<br>${t('tipTarget')}: ${money(target)}`;
+    tip.style.left = `${e.clientX - rect.left}px`;
+    tip.style.top = `${e.clientY - rect.top}px`;
+    tip.hidden = false;
+    tip.classList.add('visible');
+  });
+  canvas.addEventListener('mouseleave', () => {
+    tip.classList.remove('visible');
+    tip.hidden = true;
+  });
+}
+
+function renderAll(r) {
+  state.result = r;
+  renderHero(r);
+  renderKpis(r);
+  renderTable(r);
+  drawChart(r);
+  bindChartTip();
+}
+
+function recompute() {
+  renderAll(calculate());
+}
+
+function bindField(inputId, sliderId, opts = {}) {
+  const input = document.getElementById(inputId);
+  const slider = document.getElementById(sliderId);
+  const syncFromInput = () => {
+    let v = Number(input.value);
+    if (!Number.isFinite(v)) v = 0;
+    if (opts.min != null) v = Math.max(opts.min, v);
+    if (opts.max != null && v > Number(slider.max)) {
+      slider.max = String(Math.ceil(v / (opts.step || 1)) * (opts.step || 1));
+    }
+    input.value = String(v);
+    slider.value = String(Math.min(Number(slider.max), Math.max(Number(slider.min), v)));
+    recompute();
+  };
+  const syncFromSlider = () => {
+    input.value = slider.value;
+    recompute();
+  };
+  input.addEventListener('input', syncFromInput);
+  input.addEventListener('change', syncFromInput);
+  slider.addEventListener('input', syncFromSlider);
+}
+
+applyTheme();
+applyI18n();
+bindAppDropdown();
+bindField('portfolio', 'portfolioSlider', { min: 0, step: 1000 });
+bindField('monthlyInvest', 'monthlyInvestSlider', { min: 0, step: 50 });
+bindField('returnRate', 'returnRateSlider', { min: 0, step: 0.1 });
+bindField('monthlySpend', 'monthlySpendSlider', { min: 0, step: 50 });
+bindField('withdrawRate', 'withdrawRateSlider', { min: 1, step: 0.1 });
+
+document.getElementById('langToggle')?.addEventListener('click', () => {
+  setLang(prefs.lang === 'sk' ? 'en' : 'sk');
+});
+document.getElementById('themeToggle')?.addEventListener('click', () => {
+  setTheme(prefs.theme === 'dark' ? 'light' : 'dark');
+});
+window.addEventListener('resize', () => {
+  if (state.result) drawChart(state.result);
+});
+
+recompute();
+</script>
+</body>
+</html>

@@ -18,11 +18,14 @@
   --xtb-red-soft: rgba(227, 6, 19, 0.1);
   --green: #16a34a;
   --green-soft: rgba(22, 163, 74, 0.12);
+  --retire: #6366f1;
+  --retire-soft: rgba(99, 102, 241, 0.12);
   --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --focus: 0 0 0 3px rgba(37, 99, 235, 0.28);
   --shadow: 0 8px 28px rgba(16, 24, 40, 0.08);
   --glow-red: rgba(227, 6, 19, 0.12);
   --glow-green: rgba(22, 163, 74, 0.12);
+  --glow-retire: rgba(99, 102, 241, 0.14);
 }
 
 html[data-theme="dark"] {
@@ -35,10 +38,12 @@ html[data-theme="dark"] {
   --line-2: #2c2e34;
   --xtb-red-soft: rgba(227, 6, 19, 0.16);
   --green-soft: rgba(22, 163, 74, 0.16);
+  --retire-soft: rgba(129, 140, 248, 0.16);
   --focus: 0 0 0 3px rgba(91, 141, 239, 0.35);
   --shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
   --glow-red: rgba(227, 6, 19, 0.16);
   --glow-green: rgba(22, 163, 74, 0.14);
+  --glow-retire: rgba(129, 140, 248, 0.16);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -133,9 +138,9 @@ button { font: inherit; cursor: pointer; }
 }
 
 .choices {
-  width: min(720px, 100%);
+  width: min(960px, 100%);
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -165,6 +170,7 @@ button { font: inherit; cursor: pointer; }
 }
 .choice-tracker::before { background: var(--xtb-red); }
 .choice-calc::before { background: var(--green); }
+.choice-retire::before { background: var(--retire); }
 
 .choice:hover {
   transform: translateY(-3px);
@@ -173,6 +179,7 @@ button { font: inherit; cursor: pointer; }
 .choice:focus-visible { transform: translateY(-3px); }
 .choice-tracker:hover { border-color: rgba(227, 6, 19, 0.45); }
 .choice-calc:hover { border-color: rgba(22, 163, 74, 0.45); }
+.choice-retire:hover { border-color: rgba(99, 102, 241, 0.45); }
 
 .choice-icon {
   width: 56px;
@@ -189,9 +196,13 @@ button { font: inherit; cursor: pointer; }
   background: var(--green-soft);
   color: var(--green);
 }
+.choice-retire .choice-icon {
+  background: var(--retire-soft);
+  color: var(--retire);
+}
 
 .choice-name {
-  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-size: clamp(1.15rem, 2.6vw, 1.4rem);
   font-weight: 700;
   letter-spacing: -.02em;
   text-align: center;
@@ -199,8 +210,9 @@ button { font: inherit; cursor: pointer; }
 }
 .choice-tracker .choice-name > span { color: var(--xtb-red); }
 .choice-calc .choice-name > span { color: var(--green); }
+.choice-retire .choice-name > span { color: var(--retire); }
 
-@media (max-width: 560px) {
+@media (max-width: 800px) {
   .main { padding-top: 28px; }
   .choices { grid-template-columns: 1fr; }
   .choice { min-height: 150px; }
@@ -243,6 +255,17 @@ button { font: inherit; cursor: pointer; }
           </svg>
         </div>
         <span class="choice-name">Invest <span>Calculator</span></span>
+      </a>
+
+      <a class="choice choice-retire" href="retireCalculator.html">
+        <div class="choice-icon" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+            <path d="M7 22.5V11h2.4v8.8H24V22.5H7z" fill="currentColor" opacity=".22"/>
+            <path d="M8.5 20.5l5.2-6.2 3.2 3.1L23 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="23" cy="10" r="2.4" fill="currentColor"/>
+          </svg>
+        </div>
+        <span class="choice-name">Retire <span>Calculator</span></span>
       </a>
     </nav>
   </main>

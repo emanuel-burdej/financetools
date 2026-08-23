@@ -153,6 +153,7 @@ button, input { font: inherit; }
 .app-dd-menu a.active { background: var(--line-2); color: var(--ink); }
 .app-link-tracker span { color: var(--xtb-red); }
 .app-link-calc span { color: #16a34a; }
+.app-link-retire span { color: #6366f1; }
 .nav-links {
   display: flex; gap: 2px; flex: 1; overflow-x: auto;
   scrollbar-width: none;
@@ -702,6 +703,7 @@ html[data-theme="dark"] .pct-pill.pos { color: #0b1f14; }
         </button>
         <div class="app-dd-menu" role="listbox">
           <a href="investmentCalculator.html" class="app-link-calc">Invest <span>Calculator</span></a>
+          <a href="retireCalculator.html" class="app-link-retire">Retire <span>Calculator</span></a>
         </div>
       </div>
       <nav class="nav-links" aria-label="Sekcie" data-i18n-aria="navSections">
@@ -779,7 +781,7 @@ html[data-theme="dark"] .pct-pill.pos { color: #0b1f14; }
               class="hint-tip"
               tabindex="0"
               data-i18n-tip="netDepositsTip"
-              data-tip="Koľko si na účet poslal (mínus čo si vybral)."
+              data-tip="Vklady mínus výbery za vybrané obdobie."
             ><span data-i18n="netDeposits">Čisté vklady</span></span>
             <b id="kpiDeposits">—</b>
           </span>
@@ -788,7 +790,7 @@ html[data-theme="dark"] .pct-pill.pos { color: #0b1f14; }
               class="hint-tip"
               tabindex="0"
               data-i18n-tip="avgMonthlyTip"
-              data-tip="Priemerný mesačný vklad je očistený o jednorázové vklady (väčšie ako 10 000 €) a výbery peňazí."
+              data-tip="Priemer bežných vkladov (≤ 10 000 €) za vybrané obdobie. Počíta sa od prvého vkladu v okne — nie cez prázdne mesiace pred ním."
             ><span data-i18n="avgMonthly">Priemerný mesačný vklad</span></span>
             <b id="kpiAvgMonthly">—</b>
           </span>
@@ -1356,9 +1358,9 @@ const I18N = {
     importXtb: 'Nahrať .xlsx z disku',
     reset: 'Obnoviť',
     netDeposits: 'Čisté vklady',
-    netDepositsTip: 'Koľko si na účet poslal (mínus čo si vybral).',
+    netDepositsTip: 'Vklady mínus výbery za vybrané obdobie.',
     avgMonthly: 'Priemerný mesačný vklad',
-    avgMonthlyTip: 'Priemerný mesačný vklad je očistený o jednorázové vklady (väčšie ako 10 000 €) a výbery peňazí.',
+    avgMonthlyTip: 'Priemer bežných vkladov (≤ 10 000 €) za vybrané obdobie. Počíta sa od prvého vkladu v okne — nie cez prázdne mesiace pred ním.',
     firstBuy: 'Prvý nákup',
     lastBuy: 'Posledný nákup',
     performance: 'Výkonnosť',
@@ -1443,9 +1445,9 @@ const I18N = {
     importXtb: 'Upload .xlsx from disk',
     reset: 'Reset',
     netDeposits: 'Net deposits',
-    netDepositsTip: 'How much you sent to the account (minus what you withdrew).',
+    netDepositsTip: 'Deposits minus withdrawals for the selected period.',
     avgMonthly: 'Average monthly deposit',
-    avgMonthlyTip: 'Average monthly deposit excludes one-off deposits (over €10,000) and withdrawals.',
+    avgMonthlyTip: 'Average of regular deposits (≤ €10,000) in the selected period. Starts at the first deposit in the window — empty months before that are ignored.',
     firstBuy: 'First purchase',
     lastBuy: 'Last purchase',
     performance: 'Performance',
@@ -2135,6 +2137,83 @@ function computePeriodMetrics(model, period) {
   return { absolute, pct };
 }
 
+function getPeriodRangeMs(model, period) {
+  const series = model?.series || [];
+  if (!series.length) return null;
+  const end = series[series.length - 1].t;
+  const DAY = 24 * 60 * 60 * 1000;
+  if (period === 'max') {
+    const firstReal = series.find(s => (s.invested || 0) > 0 || (s.equity || 0) > 0) || series[0];
+    return { start: firstReal.t, end };
+  }
+  let start;
+  if (period === 'ytd') {
+    const d = new Date(end);
+    start = Date.UTC(d.getUTCFullYear(), 0, 1);
+  } else {
+    const days = CHART_PERIOD_DAYS[period];
+    if (!days) return { start: series[0].t, end };
+    start = end - days * DAY;
+  }
+  return { start, end };
+}
+
+/** Dĺžka okna v mesiacoch — aspoň 1 (1D/5D/1M sa nedelia cez 2 kalendárne mesiace). */
+function monthsInRange(startMs, endMs) {
+  const MONTH = 1000 * 60 * 60 * 24 * 30.4375;
+  return Math.max((endMs - startMs) / MONTH, 1);
+}
+
+function computeNetDepositsForPeriod(model, period) {
+  if (!model) return null;
+  if (period === 'max') return model.netInvested;
+  const cash = state.data?.cashOperations || [];
+  const range = getPeriodRangeMs(model, period);
+  if (!range) return null;
+  let net = 0;
+  for (const c of cash) {
+    const typ = c.type || '';
+    if (typ !== 'Deposit' && !/withdraw/i.test(typ)) continue;
+    const t = c.time ? new Date(c.time).getTime() : NaN;
+    if (!Number.isFinite(t)) continue;
+    if (t < range.start || t > range.end) continue;
+    net += c.amount || 0;
+  }
+  return net;
+}
+
+function computeAvgMonthlyForPeriod(model, period) {
+  const cash = state.data?.cashOperations || [];
+  const range = getPeriodRangeMs(model, period);
+  if (!range) return null;
+
+  const LARGE_DEPOSIT = 10000;
+  const deposits = [];
+  for (const c of cash) {
+    if ((c.type || '') !== 'Deposit') continue;
+    const amt = c.amount || 0;
+    if (amt > LARGE_DEPOSIT) continue;
+    const t = c.time ? new Date(c.time).getTime() : NaN;
+    if (!Number.isFinite(t)) continue;
+    deposits.push({ t, amt });
+  }
+  if (!deposits.length) return null;
+  deposits.sort((a, b) => a.t - b.t);
+
+  // Nezapočítavaj prázdne mesiace pred prvým vkladom (5R pri 3-ročnej histórii by inak skreslilo priemer).
+  const start = Math.max(range.start, deposits[0].t);
+  const end = range.end;
+  if (end < start) return null;
+
+  let sum = 0;
+  for (const d of deposits) {
+    if (d.t >= start && d.t <= end) sum += d.amt;
+  }
+  if (sum <= 0) return null;
+
+  return sum / monthsInRange(start, end);
+}
+
 function updatePeriodKpis() {
   const m = state.model;
   if (!m) return;
@@ -2153,6 +2232,16 @@ function updatePeriodKpis() {
     absEl.textContent = absolute == null
       ? '—'
       : signedMoney(absolute, m.ccy) + ' ' + label;
+  }
+  const avgEl = document.getElementById('kpiAvgMonthly');
+  if (avgEl) {
+    const avg = computeAvgMonthlyForPeriod(m, state.chartPeriod);
+    avgEl.textContent = avg != null ? money(avg, m.ccy) : '—';
+  }
+  const depEl = document.getElementById('kpiDeposits');
+  if (depEl) {
+    const net = computeNetDepositsForPeriod(m, state.chartPeriod);
+    depEl.textContent = net != null ? money(net, m.ccy) : '—';
   }
 }
 
@@ -2520,10 +2609,6 @@ function renderAll(data, note) {
   const parts = moneyParts(m.portfolioValue, m.ccy);
   document.getElementById('kpiValueNum').textContent = parts.amount;
   document.getElementById('kpiValueCcy').textContent = parts.currency;
-  document.getElementById('kpiDeposits').textContent = money(m.netInvested, m.ccy);
-  document.getElementById('kpiAvgMonthly').textContent = m.avgMonthlyDeposit != null
-    ? money(m.avgMonthlyDeposit, m.ccy)
-    : '—';
   document.getElementById('kpiFirst').textContent = m.firstPurchase ? fmtDay(m.firstPurchase) : '—';
   document.getElementById('kpiLast').textContent = m.lastPurchase ? fmtDay(m.lastPurchase) : '—';
 

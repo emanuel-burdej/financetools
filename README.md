@@ -1,19 +1,16 @@
 # Finance Tools
 
-**[emanuel-burdej.github.io/financetools](https://emanuel-burdej.github.io/financetools/)**
+**[emanuel-burdej.github.io/financetools](https://emanuel-burdej.github.io/financetools)**
 
-**[emanuel-burdej.github.io/financetools/xtbTracker](https://emanuel-burdej.github.io/financetools/xtbTracker.html)**
-
-**[emanuel-burdej.github.io/financetools/investmentCalculator](https://emanuel-burdej.github.io/financetools/investmentCalculator.html)**
-
-Two small browser apps for personal investing. Everything stays in your browser.
+Small browser apps for personal investing. Open a file, run the math, see the chart. No accounts, no server — everything stays in your browser.
 
 ## What you get
 
 - **XTB Tracker** — load an XTB `.xlsx` export and review portfolio value, performance over time, instruments, allocation, and open/closed positions. Drag-and-drop or pick a file; nothing is uploaded anywhere.
 - **Investment Calculator** — project compound growth with starting amount, rate, contributions, and compounding (including continuous). Results show end balance, schedule table, and charts.
+- **Retire Calculator** — estimate when you can retire using the 4% rule. Sliders for portfolio, monthly investing, return, expenses, and withdrawal rate; interactive path chart and yearly schedule.
 
-SK and EN. Dark and light mode. Theme and language are shared between both apps.
+SK and EN. Dark and light mode. Theme and language are shared between all apps.
 
 ## Screenshots
 
@@ -29,8 +26,10 @@ SK and EN. Dark and light mode. Theme and language are shared between both apps.
 
 ```
 FinanceTools/
+  index.html
   xtbTracker.html
   investmentCalculator.html
+  retireCalculator.html
   docs/screenshots/
 ```
 
