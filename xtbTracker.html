@@ -801,8 +801,8 @@ html[data-theme="dark"] .inst-modal-backdrop { background: rgba(0, 0, 0, 0.62); 
           <i class="chev" aria-hidden="true"></i>
         </button>
         <div class="app-dd-menu" role="listbox">
-          <a href="investmentCalculator.html?v=20260823e" class="app-link-calc">Invest <span>Calculator</span></a>
-          <a href="retireCalculator.html?v=20260823e" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
+          <a href="investmentCalculator.html?v=20260823f" class="app-link-calc">Invest <span>Calculator</span></a>
+          <a href="retireCalculator.html?v=20260823f" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
         </div>
       </div>
       <nav class="nav-links" aria-label="Sekcie" data-i18n-aria="navSections">
@@ -1352,33 +1352,44 @@ function computeModel(data) {
     if (/^(value|profit|metric|amount|currency)$/i.test(p.ticker || '')) continue;
     if (/^\d+[.,]?\d*$/.test(String(p.ticker || ''))) continue;
     const key = p.ticker || p.instrument || '—';
+    const agg = openPos.find(x => x.isAggregate && (x.ticker === p.ticker || (!p.ticker && x.instrument)));
+    const fromCash = cash.find(c => c.ticker === (p.ticker || '') && (c.instrument || c.category));
     const cur = byTicker.get(key) || {
       ticker: p.ticker || '',
-      instrument: p.isAggregate ? p.instrument : (openPos.find(x => x.isAggregate && x.ticker === p.ticker)?.instrument || p.instrument),
-      category: p.category || '',
+      instrument: (agg && agg.instrument) || p.instrument || '',
+      category: (agg && agg.category) || p.category || (fromCash && fromCash.category) || '',
       volume: 0,
       value: 0,
       netProfit: 0,
     };
-    if (p.category && !cur.category) cur.category = p.category;
+    if (agg) {
+      if (agg.instrument) cur.instrument = agg.instrument;
+      if (agg.category) cur.category = agg.category;
+    }
+    if (!cur.category && p.category) cur.category = p.category;
+    if (!cur.category && fromCash && fromCash.category) cur.category = fromCash.category;
     if (p.isAggregate || !cur.instrument || /^\d+$/.test(cur.instrument)) {
       if (p.isAggregate) cur.instrument = p.instrument;
     }
-    // Prefer human name from aggregate row
-    const agg = openPos.find(x => x.isAggregate && (x.ticker === p.ticker || (!p.ticker && x.instrument)));
-    if (agg) cur.instrument = agg.instrument;
     cur.volume += p.volume || 0;
     cur.value += p.value || 0;
     cur.netProfit += p.netProfit || 0;
     byTicker.set(key, cur);
   }
-  // If we summed legs, aggregate row already has full value — avoid double count:
-  // When using legs, values sum to portfolio. Good.
-  // When instrument name missing on legs, fix from cash map
+  // When instrument name / category missing on legs, fix from cash / aggregates
   for (const [k, v] of byTicker) {
+    const agg = openPos.find(x => x.isAggregate && x.ticker === k);
+    if (agg) {
+      if (agg.instrument) v.instrument = agg.instrument;
+      if (agg.category) v.category = agg.category;
+    }
     if (!v.instrument || /^\d+$/.test(v.instrument)) {
       const fromCash = cash.find(c => c.ticker === k && c.instrument);
       if (fromCash) v.instrument = fromCash.instrument;
+    }
+    if (!v.category) {
+      const fromCash = cash.find(c => c.ticker === k && c.category);
+      if (fromCash) v.category = fromCash.category;
     }
   }
   let instruments = [...byTicker.values()].sort((a, b) => (b.value || 0) - (a.value || 0));
@@ -2725,11 +2736,14 @@ function resolveIsin(instrument) {
 }
 
 function looksLikeFund(instrument) {
-  const cat = String(instrument.category || '').toUpperCase();
-  if (/ETF|ETC|ETN|ETP|FUND/.test(cat)) return true;
-  if (/STOCK|CFD|CRYPTO|FOREX|COMMODITY|SHARE/.test(cat)) return false;
+  const cat = String(instrument.category || '').toUpperCase().trim();
+  if (/^(ETF|ETC|ETN|ETP)$/.test(cat) || /\b(ETF|ETC|ETN|ETP)\b/.test(cat)) return true;
+  if (/^(STOCK|SHARE|CFD|CRYPTO|FOREX|COMMODITY|OPTION|FUTURE)$/.test(cat)) return false;
+  if (/\b(STOCK|SHARE|CFD)\b/.test(cat)) return false;
   const name = String(instrument.instrument || '');
-  return /ETF|UCITS|ETC|ETN|tracker|iShares|Vanguard|Xtrackers|Amundi|SPDR/i.test(name);
+  // Only treat as fund by name when XTB category is missing
+  if (!cat && /ETF|UCITS|ETC|ETN|ETP|tracker fund|iShares|Xtrackers|Amundi Prime|Vanguard FTSE|SPDR/i.test(name)) return true;
+  return false;
 }
 
 async function resolveIsinAsync(instrument) {
@@ -2746,9 +2760,11 @@ async function resolveIsinAsync(instrument) {
   }
 
   const name = String(instrument.instrument || '').trim();
+  // Prefer site:justetf.com queries (same idea as justETF scrapers: resolve ticker → ISIN, then profile)
   const queries = [
-    `${base} ISIN justetf`,
-    rawTicker !== base ? `${rawTicker} ISIN justetf` : null,
+    `${base} site:justetf.com/etf-profile`,
+    `${base} ISIN site:justetf.com`,
+    rawTicker !== base ? `${rawTicker} site:justetf.com` : null,
     name ? `${base} ${name} ISIN justetf` : null,
   ].filter(Boolean);
 
@@ -2947,10 +2963,16 @@ function renderInstModalContent(instrument, data) {
   if (!data?.ok) {
     const isin = data?.isin || resolveIsin(instrument);
     const justUrl = isin ? 'https://www.justetf.com/en/etf-profile.html?isin=' + encodeURIComponent(isin) : '';
-    const msg = data?.isEtf === false ? t('instNotEtf') : t('instError');
+    if (data?.isEtf === false) {
+      body.innerHTML = `
+        <div class="inst-modal-status">
+          <div>${escapeHtml(t('instNotEtf'))}</div>
+        </div>`;
+      return;
+    }
     body.innerHTML = `
       <div class="inst-modal-status error">
-        <div>${escapeHtml(msg)}</div>
+        <div>${escapeHtml(t('instError'))}</div>
         <div style="margin-top:8px">${escapeHtml(t('instErrorHint'))}</div>
         ${justUrl ? `<div style="margin-top:12px"><a href="${justUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('instOpenJustEtf'))}</a></div>` : ''}
       </div>`;
@@ -3013,7 +3035,7 @@ function bindInstModal() {
   });
 
   function onInstrumentClick(e) {
-    const row = e.target.closest('[data-inst-idx]');
+    const row = e.target.closest('[data-inst-idx][data-fund="1"]');
     if (!row || !state.model?.instruments?.length) return;
     const idx = Number(row.getAttribute('data-inst-idx'));
     const instrument = state.model.instruments[idx];
@@ -3024,7 +3046,7 @@ function bindInstModal() {
   document.getElementById('instrumentList')?.addEventListener('click', onInstrumentClick);
   document.getElementById('holdingsBody')?.addEventListener('keydown', e => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
-    const row = e.target.closest('tr[data-inst-idx]');
+    const row = e.target.closest('tr[data-inst-idx][data-fund="1"]');
     if (!row) return;
     e.preventDefault();
     onInstrumentClick({ target: row });
@@ -3032,7 +3054,7 @@ function bindInstModal() {
 }
 
 function markInstrumentRowsClickable() {
-  document.querySelectorAll('#holdingsBody tr[data-inst-idx], #instrumentList .alloc-item[data-inst-idx]').forEach(el => {
+  document.querySelectorAll('#holdingsBody tr[data-fund="1"], #instrumentList .alloc-item[data-fund="1"]').forEach(el => {
     el.classList.add('inst-row-clickable');
     if (el.tagName === 'TR') el.tabIndex = 0;
   });
@@ -3048,16 +3070,17 @@ function renderInstruments(model) {
   body.innerHTML = rows.map((i, idx) => {
     const pl = i.netProfit;
     const plCls = clsMoney(pl);
-    return `<tr data-inst-idx="${idx}">
+    const isFund = looksLikeFund(i);
+    return `<tr data-inst-idx="${idx}" ${isFund ? 'data-fund="1"' : ''}>
       <td>
         <div class="sec-cell">
           <div>
             <div class="sec-name">${escapeHtml(i.instrument || i.ticker || '—')}</div>
-            <div class="sec-ticker">${escapeHtml(i.ticker || '')}</div>
+            <div class="sec-ticker">${escapeHtml([i.ticker, i.category].filter(Boolean).join(' · '))}</div>
           </div>
-          <span class="inst-row-chev" aria-hidden="true">
+          ${isFund ? `<span class="inst-row-chev" aria-hidden="true">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </span>
+          </span>` : ''}
         </div>
       </td>
       <td class="num">${num(i.volume, 4)}</td>
@@ -3073,19 +3096,21 @@ function renderInstruments(model) {
   }).join('') || `<tr><td colspan="5">${t('noOpen')}</td></tr>`;
 
   const colors = ['#2563eb', '#60a5fa', '#93c5fd', '#64748b', '#059669', '#dc2626', '#d97706', '#8b5cf6'];
-  list.innerHTML = rows.map((i, idx) => `
-    <div class="alloc-item" data-inst-idx="${idx}">
+  list.innerHTML = rows.map((i, idx) => {
+    const isFund = looksLikeFund(i);
+    return `
+    <div class="alloc-item" data-inst-idx="${idx}" ${isFund ? 'data-fund="1"' : ''}>
       <span class="alloc-swatch" style="background:${colors[idx % colors.length]}"></span>
       <div>
         <div class="name">${escapeHtml(i.ticker || i.instrument || '—')}</div>
-        <div class="meta">${escapeHtml(i.instrument || '')}</div>
+        <div class="meta">${escapeHtml([i.instrument, i.category].filter(Boolean).join(' · '))}</div>
       </div>
       <div class="val">${num(i.weight, 1)} %<div class="meta">${money(i.value, model.ccy)}</div></div>
-      <span class="inst-row-chev" aria-hidden="true">
+      ${isFund ? `<span class="inst-row-chev" aria-hidden="true">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </span>
-    </div>
-  `).join('') || `<div class="meta" style="padding:12px">${t('noData')}</div>`;
+      </span>` : '<span></span>'}
+    </div>`;
+  }).join('') || `<div class="meta" style="padding:12px">${t('noData')}</div>`;
   markInstrumentRowsClickable();
 }
 
