@@ -619,13 +619,76 @@ td.neg { color: var(--loss); }
 section[id], .panel[id] { scroll-margin-top: 72px; }
 
 .account-chip {
+  appearance: none;
   display: inline-flex; align-items: center; gap: 8px;
   border: 1px solid var(--line); background: var(--surface);
   border-radius: 8px; padding: 6px 10px; font-size: .75rem; color: var(--muted);
+  cursor: pointer; font-family: inherit; line-height: 1;
 }
+.account-chip:hover { color: var(--ink); background: var(--line-2); border-color: var(--muted); }
+.account-dd.open .account-chip { color: var(--ink); border-color: var(--muted); background: var(--line-2); }
 .account-chip strong {
   color: var(--ink); font-family: var(--mono); font-weight: 650;
   font-size: .8125rem; font-variant-numeric: tabular-nums;
+}
+.account-chip .chev {
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--muted);
+  margin-top: 1px; margin-left: 2px;
+  transition: transform .15s ease;
+}
+.account-dd { position: relative; }
+.account-dd.open .account-chip .chev { transform: rotate(180deg); }
+.account-dd-menu {
+  display: none;
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 120;
+  min-width: 220px;
+  background: var(--elevated);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 14px 36px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06);
+  padding: 8px;
+}
+.account-dd.open .account-dd-menu { display: block; }
+.account-dd-title {
+  font-size: .6875rem; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--faint);
+  padding: 4px 8px 8px;
+}
+.account-dd-empty {
+  margin: 0; padding: 6px 8px 8px;
+  font-size: .75rem; color: var(--muted); line-height: 1.35;
+}
+.product-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; width: 100%;
+  padding: 8px 10px; border-radius: 8px;
+  border: 0; background: transparent; color: var(--ink);
+  font: inherit; font-size: .8125rem; font-weight: 600;
+  cursor: pointer; text-align: left;
+}
+.product-toggle:hover { background: var(--line-2); }
+.product-toggle .product-name { flex: 1; min-width: 0; }
+.product-switch {
+  position: relative; width: 34px; height: 20px; flex-shrink: 0;
+  border-radius: 999px; background: var(--line);
+  transition: background .15s ease;
+}
+.product-toggle[aria-checked="true"] .product-switch {
+  background: var(--blue);
+}
+.product-switch::after {
+  content: '';
+  position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff;
+  transition: transform .15s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
+.product-toggle[aria-checked="true"] .product-switch::after {
+  transform: translateX(14px);
 }
 
 .hero-line {
@@ -801,8 +864,8 @@ html[data-theme="dark"] .inst-modal-backdrop { background: rgba(0, 0, 0, 0.62); 
           <i class="chev" aria-hidden="true"></i>
         </button>
         <div class="app-dd-menu" role="listbox">
-          <a href="investmentCalculator.html?v=20260823m" class="app-link-calc">Invest <span>Calculator</span></a>
-          <a href="retireCalculator.html?v=20260823m" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
+          <a href="investmentCalculator.html?v=20260823p" class="app-link-calc">Invest <span>Calculator</span></a>
+          <a href="retireCalculator.html?v=20260823p" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
         </div>
       </div>
       <nav class="nav-links" aria-label="Sekcie" data-i18n-aria="navSections">
@@ -813,7 +876,17 @@ html[data-theme="dark"] .inst-modal-backdrop { background: rgba(0, 0, 0, 0.62); 
       </nav>
       <div class="nav-actions">
         <div class="account-wrap">
-          <div class="account-chip"><span data-i18n="account">Účet</span> <strong id="accountBadge">—</strong></div>
+          <div class="account-dd" id="accountDd">
+            <button type="button" class="account-chip" id="accountDdBtn" aria-haspopup="menu" aria-expanded="false">
+              <span data-i18n="account">Účet</span> <strong id="accountBadge">—</strong>
+              <i class="chev" aria-hidden="true"></i>
+            </button>
+            <div class="account-dd-menu" id="accountDdMenu" role="menu" hidden>
+              <div class="account-dd-title" data-i18n="productsTitle">Produkty</div>
+              <div id="productToggles"></div>
+              <p class="account-dd-empty" id="productTogglesEmpty" data-i18n="productsEmpty">Najprv importujte XTB export.</p>
+            </div>
+          </div>
           <label class="account-upload" for="fileInput" id="uploadBtn" title="Nahrať .xlsx z disku" data-i18n-title="importXtb" aria-label="Import XTB">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -1201,6 +1274,7 @@ function parseXtbWorkbook(files) {
         openTime: isoFromExcel(d['Open Time (UTC)']),
         closePrice: toNum(d['Close Price']),
         closeTime: isoFromExcel(d['Close Time (UTC)']),
+        product: normalizeProductName(d['Product'] || ''),
         profitLoss: toNum(d['Profit/Loss']),
         grossProfit: toNum(d['Gross Profit']),
         purchaseValue: toNum(d['Purchase Value']),
@@ -1229,12 +1303,13 @@ function parseXtbWorkbook(files) {
         amount: toNum(d['Amount']),
         id: String(d['ID'] || ''),
         comment: d['Comment'] || '',
+        product: normalizeProductName(d['Product'] || ''),
         positionId: String(d['Position ID'] || ''),
       });
     }
   }
 
-  const summary = { value: null, profit: null, currency };
+  const summary = { value: null, profit: null, currency, byProduct: {} };
   let reportAsOf = null;
   for (const r of openRaw) {
     if (r[0] === 'Data as of report generated') reportAsOf = isoFromExcel(r[1]);
@@ -1242,13 +1317,21 @@ function parseXtbWorkbook(files) {
     if (r[1] === 'Value' && r[2] != null && r[2] !== '') {
       const v = toNum(r[2]);
       if (v != null) {
+        const product = normalizeProductName(r[0]) || '—';
         summary.value = (summary.value || 0) + v;
+        if (!summary.byProduct[product]) summary.byProduct[product] = { value: null, profit: null };
+        summary.byProduct[product].value = (summary.byProduct[product].value || 0) + v;
         if (r[3]) summary.currency = r[3];
       }
     }
     if (r[1] === 'Profit' && r[2] != null && r[2] !== '') {
       const v = toNum(r[2]);
-      if (v != null) summary.profit = (summary.profit || 0) + v;
+      if (v != null) {
+        const product = normalizeProductName(r[0]) || '—';
+        summary.profit = (summary.profit || 0) + v;
+        if (!summary.byProduct[product]) summary.byProduct[product] = { value: null, profit: null };
+        summary.byProduct[product].profit = (summary.byProduct[product].profit || 0) + v;
+      }
     }
   }
 
@@ -1263,6 +1346,7 @@ function parseXtbWorkbook(files) {
       const name = d['Instrument/Position'] || '';
       const isAggregate = !(d['Type'] || '').trim();
       openPositions.push({
+        product: normalizeProductName(d['Product'] || ''),
         instrument: name,
         ticker: d['Ticker'] || '',
         category: d['Category'] || '',
@@ -1309,11 +1393,108 @@ function parseTradeComment(comment) {
   return { qty: Number(m[1]), price: Number(m[2]) };
 }
 
+function normalizeProductName(name) {
+  const raw = String(name || '').trim();
+  if (!raw) return '';
+  // XTB: Open Positions = "Investment Plan", Cash/Summary = "Investment Plans"
+  if (/^investment\s*plans?$/i.test(raw)) return 'Investment Plans';
+  if (/^my\s*trades?$/i.test(raw)) return 'My Trades';
+  return raw;
+}
+
+function productKey(name) {
+  return normalizeProductName(name);
+}
+
+function isInvestmentPlanProduct(product) {
+  return productKey(product) === 'Investment Plans';
+}
+
+function defaultProductEnabled(name) {
+  return !isInvestmentPlanProduct(name);
+}
+
+function loadProductPrefs() {
+  let parsed = null;
+  try {
+    const raw = localStorage.getItem('xtb-products');
+    if (raw) {
+      const obj = JSON.parse(raw);
+      if (obj && typeof obj === 'object') parsed = obj;
+    }
+  } catch (_) { /* ignore */ }
+  if (!parsed) {
+    const legacy = localStorage.getItem('xtb-include-plans');
+    if (legacy === '1') parsed = { 'Investment Plans': true };
+    else if (legacy === '0') parsed = { 'Investment Plans': false };
+    else parsed = {};
+  }
+  // Zlúč staré singulárne kľúče
+  if (Object.prototype.hasOwnProperty.call(parsed, 'Investment Plan')) {
+    if (!Object.prototype.hasOwnProperty.call(parsed, 'Investment Plans')) {
+      parsed['Investment Plans'] = parsed['Investment Plan'];
+    }
+    delete parsed['Investment Plan'];
+    try { localStorage.setItem('xtb-products', JSON.stringify(parsed)); } catch (_) { /* ignore */ }
+  }
+  return parsed;
+}
+
+function isProductEnabled(product) {
+  const key = productKey(product);
+  if (!key) return true;
+  if (Object.prototype.hasOwnProperty.call(prefs.products, key)) return !!prefs.products[key];
+  return defaultProductEnabled(key);
+}
+
+function discoverProducts(data) {
+  if (!data) return [];
+  const set = new Set();
+  for (const name of Object.keys(data.summary?.byProduct || {})) {
+    const k = productKey(name);
+    if (k) set.add(k);
+  }
+  for (const list of [data.openPositions, data.cashOperations, data.closedPositions]) {
+    for (const row of list || []) {
+      const k = productKey(row.product);
+      if (k) set.add(k);
+    }
+  }
+  return [...set].sort((a, b) => {
+    const rank = (n) => (/my\s*trades/i.test(n) ? 0 : isInvestmentPlanProduct(n) ? 2 : 1);
+    const ra = rank(a);
+    const rb = rank(b);
+    if (ra !== rb) return ra - rb;
+    return a.localeCompare(b, undefined, { sensitivity: 'base' });
+  });
+}
+
+function summaryForScope(summary) {
+  if (!summary) return { value: null, profit: null };
+  const by = summary.byProduct || {};
+  const keys = Object.keys(by);
+  if (!keys.length) {
+    return { value: summary.value ?? null, profit: summary.profit ?? null };
+  }
+  let value = null;
+  let profit = null;
+  let any = false;
+  for (const [name, part] of Object.entries(by)) {
+    if (!isProductEnabled(name)) continue;
+    any = true;
+    if (part?.value != null) value = (value || 0) + part.value;
+    if (part?.profit != null) profit = (profit || 0) + part.profit;
+  }
+  if (!any) return { value: 0, profit: 0 };
+  return { value, profit };
+}
+
 function computeModel(data) {
   const ccy = data.summary.currency || data.meta.currency || 'EUR';
-  const cash = data.cashOperations || [];
-  const closed = (data.closedPositions || []).filter(c => c.instrument && c.instrument !== 'Profit/loss');
-  const openPos = data.openPositions || [];
+  const keep = (product) => isProductEnabled(product);
+  const cash = (data.cashOperations || []).filter(c => keep(c.product));
+  const closed = (data.closedPositions || []).filter(c => c.instrument && c.instrument !== 'Profit/loss' && keep(c.product));
+  const openPos = (data.openPositions || []).filter(p => keep(p.product));
 
   let deposits = 0, withdrawals = 0;
   let regularDeposits = 0;
@@ -1340,10 +1521,13 @@ function computeModel(data) {
     const months = Math.max((asOfMs - firstDeposit.getTime()) / (1000 * 60 * 60 * 24 * 30.4375), 1 / 30.4375);
     avgMonthlyDeposit = regularDeposits / months;
   }
-  const portfolioValue = data.summary.value != null
-    ? data.summary.value
+  const scoped = summaryForScope(data.summary);
+  const portfolioValue = scoped.value != null
+    ? scoped.value
     : openPos.filter(p => p.isAggregate).reduce((s, p) => s + (p.value || 0), 0);
-  const xtbProfit = data.summary.profit;
+  const xtbProfit = scoped.profit != null
+    ? scoped.profit
+    : openPos.filter(p => p.isAggregate).reduce((s, p) => s + (p.netProfit || 0), 0);
   const absoluteReturn = xtbProfit != null ? xtbProfit : (portfolioValue - netInvested);
   const costBasis = portfolioValue - absoluteReturn;
   const pctReturn = costBasis !== 0 ? (absoluteReturn / costBasis) * 100 : null;
@@ -1584,6 +1768,8 @@ const I18N = {
     instSourceSecuritiesDb: 'Zdroj: SecuritiesDB (US ETF)',
     instOpenJustEtf: 'Otvoriť na justETF',
     instClose: 'Zavrieť',
+    productsTitle: 'Produkty',
+    productsEmpty: 'Najprv importujte XTB export.',
   },
   en: {
     navSections: 'Sections',
@@ -1684,6 +1870,8 @@ const I18N = {
     instSourceSecuritiesDb: 'Source: SecuritiesDB (US ETF)',
     instOpenJustEtf: 'Open on justETF',
     instClose: 'Close',
+    productsTitle: 'Products',
+    productsEmpty: 'Import an XTB export first.',
   },
 };
 
@@ -1691,6 +1879,7 @@ const I18N = {
 const prefs = {
   lang: localStorage.getItem('xtb-lang') || 'sk',
   theme: localStorage.getItem('xtb-theme') || 'dark',
+  products: loadProductPrefs(),
 };
 
 function t(key, vars) {
@@ -1791,6 +1980,80 @@ function setTheme(theme) {
   }
 }
 
+function setProductEnabled(name, on) {
+  const key = productKey(name);
+  if (!key) return;
+  const products = discoverProducts(state.data);
+  if (!on) {
+    const stillOn = products.filter(p => p !== key && isProductEnabled(p));
+    if (!stillOn.length && isProductEnabled(key)) return;
+  }
+  prefs.products[key] = !!on;
+  localStorage.setItem('xtb-products', JSON.stringify(prefs.products));
+  renderProductToggles();
+  if (state.data) renderAll(state.data);
+}
+
+function renderProductToggles() {
+  const box = document.getElementById('productToggles');
+  const empty = document.getElementById('productTogglesEmpty');
+  if (!box) return;
+  const products = discoverProducts(state.data);
+  box.innerHTML = '';
+  if (empty) empty.style.display = products.length ? 'none' : 'block';
+  for (const name of products) {
+    const on = isProductEnabled(name);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'product-toggle';
+    btn.setAttribute('role', 'menuitemcheckbox');
+    btn.setAttribute('aria-checked', on ? 'true' : 'false');
+    btn.innerHTML = `<span class="product-name"></span><span class="product-switch" aria-hidden="true"></span>`;
+    btn.querySelector('.product-name').textContent = name;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setProductEnabled(name, !isProductEnabled(name));
+    });
+    box.appendChild(btn);
+  }
+}
+
+function setAccountDdOpen(open) {
+  const dd = document.getElementById('accountDd');
+  const btn = document.getElementById('accountDdBtn');
+  const menu = document.getElementById('accountDdMenu');
+  if (!dd || !btn) return;
+  dd.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (menu) {
+    if (open) menu.removeAttribute('hidden');
+    else menu.setAttribute('hidden', '');
+  }
+}
+
+function bindAccountDropdown() {
+  const dd = document.getElementById('accountDd');
+  const btn = document.getElementById('accountDdBtn');
+  const menu = document.getElementById('accountDdMenu');
+  if (!dd || !btn) return;
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const appDd = document.getElementById('appDd');
+    if (appDd) {
+      appDd.classList.remove('open');
+      document.getElementById('appDdBtn')?.setAttribute('aria-expanded', 'false');
+    }
+    const open = !dd.classList.contains('open');
+    if (open) renderProductToggles();
+    setAccountDdOpen(open);
+  });
+  menu?.addEventListener('click', (e) => e.stopPropagation());
+  document.addEventListener('click', () => setAccountDdOpen(false));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setAccountDdOpen(false);
+  });
+}
+
 function bindAppDropdown() {
   const dd = document.getElementById('appDd');
   const btn = document.getElementById('appDdBtn');
@@ -1801,6 +2064,7 @@ function bindAppDropdown() {
   };
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
+    setAccountDdOpen(false);
     const open = !dd.classList.contains('open');
     dd.classList.toggle('open', open);
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -2333,7 +2597,7 @@ function monthsInRange(startMs, endMs) {
 function computeNetDepositsForPeriod(model, period) {
   if (!model) return null;
   if (period === 'max') return model.netInvested;
-  const cash = state.data?.cashOperations || [];
+  const cash = model.cash || [];
   const range = getPeriodRangeMs(model, period);
   if (!range) return null;
   let net = 0;
@@ -2349,7 +2613,7 @@ function computeNetDepositsForPeriod(model, period) {
 }
 
 function computeAvgMonthlyForPeriod(model, period) {
-  const cash = state.data?.cashOperations || [];
+  const cash = model.cash || [];
   const range = getPeriodRangeMs(model, period);
   if (!range) return null;
 
@@ -3185,6 +3449,7 @@ function renderAll(data, note) {
   const meta = data.meta || {};
   const acc = document.getElementById('accountBadge');
   if (acc) acc.textContent = meta.account || '—';
+  renderProductToggles();
 
   const parts = moneyParts(m.portfolioValue, m.ccy);
   document.getElementById('kpiValueNum').textContent = parts.amount;
@@ -3261,6 +3526,8 @@ async function init() {
   applyStaticI18n();
   showWelcome(true);
   bindAppDropdown();
+  bindAccountDropdown();
+  renderProductToggles();
   bindInstModal();
   document.getElementById('langToggle')?.addEventListener('click', () => {
     setLang(prefs.lang === 'sk' ? 'en' : 'sk');
