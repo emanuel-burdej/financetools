@@ -801,8 +801,8 @@ html[data-theme="dark"] .inst-modal-backdrop { background: rgba(0, 0, 0, 0.62); 
           <i class="chev" aria-hidden="true"></i>
         </button>
         <div class="app-dd-menu" role="listbox">
-          <a href="investmentCalculator.html?v=20260823i" class="app-link-calc">Invest <span>Calculator</span></a>
-          <a href="retireCalculator.html?v=20260823i" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
+          <a href="investmentCalculator.html?v=20260823j" class="app-link-calc">Invest <span>Calculator</span></a>
+          <a href="retireCalculator.html?v=20260823j" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
         </div>
       </div>
       <nav class="nav-links" aria-label="Sekcie" data-i18n-aria="navSections">
@@ -2439,21 +2439,54 @@ function openPositionGroups(model) {
       groups.set(ticker, {
         ticker,
         name: nameByTicker.get(ticker) || (p.isAggregate ? p.instrument : ticker),
+        aggregates: [],
         aggregate: null,
         legs: [],
       });
     }
     const g = groups.get(ticker);
     if (p.isAggregate) {
+      g.aggregates.push(p);
       g.aggregate = p;
       if (p.instrument) g.name = p.instrument;
     } else {
       g.legs.push(p);
     }
   }
-  // fill avg current price on aggregate from legs
   for (const g of groups.values()) {
-    if (g.aggregate && (g.aggregate.currentPrice == null) && g.legs.length) {
+    // XTB may emit multiple aggregate rows per ticker (different cost buckets).
+    // Prefer summing legs so the header matches the Instruments panel.
+    if (g.legs.length) {
+      const volume = g.legs.reduce((s, x) => s + (x.volume || 0), 0);
+      const value = g.legs.reduce((s, x) => s + (x.value || 0), 0);
+      const netProfit = g.legs.reduce((s, x) => s + (x.netProfit || 0), 0);
+      const cost = value - netProfit;
+      const netProfitPct = cost !== 0 ? (netProfit / cost) * 100 : null;
+      const weightedOpen = volume
+        ? g.legs.reduce((s, x) => s + (x.openPrice || 0) * (x.volume || 0), 0) / volume
+        : null;
+      g.aggregate = {
+        ...(g.aggregates[0] || {}),
+        volume,
+        value,
+        netProfit,
+        netProfitPct,
+        openPrice: weightedOpen,
+        currentPrice: g.legs[0]?.currentPrice ?? null,
+      };
+    } else if (g.aggregates.length > 1) {
+      const volume = g.aggregates.reduce((s, x) => s + (x.volume || 0), 0);
+      const value = g.aggregates.reduce((s, x) => s + (x.value || 0), 0);
+      const netProfit = g.aggregates.reduce((s, x) => s + (x.netProfit || 0), 0);
+      const cost = value - netProfit;
+      g.aggregate = {
+        ...g.aggregates[0],
+        volume,
+        value,
+        netProfit,
+        netProfitPct: cost !== 0 ? (netProfit / cost) * 100 : null,
+      };
+    } else if (g.aggregate && g.aggregate.currentPrice == null && g.legs.length) {
       g.aggregate = { ...g.aggregate, currentPrice: g.legs[0].currentPrice };
     }
     g.legs.sort((a, b) => (b.value || 0) - (a.value || 0));
