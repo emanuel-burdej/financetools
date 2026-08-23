@@ -2,7 +2,7 @@
 
 **[emanuel-burdej.github.io/financetools](https://emanuel-burdej.github.io/financetools)**
 
-Two small browser apps for personal investing. Open a file, run the math, see the chart. No accounts, no server — everything stays in your browser.
+Two small browser apps for personal investing. Everything stays in your browser.
 
 ## What you get
 
