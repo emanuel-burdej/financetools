@@ -95,6 +95,20 @@ button, input { font: inherit; }
 }
 .app-dd-btn:hover { background: var(--line-2); }
 .app-dd-btn .accent { color: var(--accent); }
+.beta-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: .625rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  line-height: 1.2;
+}
+.app-dd-btn .beta-badge { margin-left: 2px; }
 .app-dd-btn .chev {
   width: 0; height: 0;
   border-left: 4px solid transparent;
@@ -384,11 +398,12 @@ tr.retire-row td {
       <div class="app-dd" id="appDd">
         <button type="button" class="app-dd-btn" id="appDdBtn" aria-haspopup="listbox" aria-expanded="false">
           Retire <span class="accent">Calculator</span>
+          <span class="beta-badge">beta</span>
           <i class="chev" aria-hidden="true"></i>
         </button>
         <div class="app-dd-menu" role="listbox">
-          <a href="xtbTracker.html" class="app-link-tracker">XTB <span>Tracker</span></a>
-          <a href="investmentCalculator.html" class="app-link-calc">Invest <span>Calculator</span></a>
+          <a href="xtbTracker.html?v=20260823" class="app-link-tracker">XTB <span>Tracker</span></a>
+          <a href="investmentCalculator.html?v=20260823" class="app-link-calc">Invest <span>Calculator</span></a>
         </div>
       </div>
       <div class="nav-actions">

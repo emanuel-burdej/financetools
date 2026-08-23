@@ -142,6 +142,21 @@ button, input, select { font: inherit; }
 .app-link-tracker span { color: #e30613; }
 .app-link-calc span { color: var(--green); }
 .app-link-retire span { color: #6366f1; }
+.beta-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: .625rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.16);
+  vertical-align: middle;
+  line-height: 1.2;
+}
 .btn-calc {
   appearance: none; border: 0; cursor: pointer;
   background: var(--green); color: #fff;
@@ -456,8 +471,8 @@ tr.year-end td {
           <i class="chev" aria-hidden="true"></i>
         </button>
         <div class="app-dd-menu" role="listbox">
-          <a href="xtbTracker.html" class="app-link-tracker">XTB <span>Tracker</span></a>
-          <a href="retireCalculator.html" class="app-link-retire">Retire <span>Calculator</span></a>
+          <a href="xtbTracker.html?v=20260823" class="app-link-tracker">XTB <span>Tracker</span></a>
+          <a href="retireCalculator.html?v=20260823" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
         </div>
       </div>
       <div class="nav-actions">

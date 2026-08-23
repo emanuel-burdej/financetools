@@ -154,6 +154,21 @@ button, input { font: inherit; }
 .app-link-tracker span { color: var(--xtb-red); }
 .app-link-calc span { color: #16a34a; }
 .app-link-retire span { color: #6366f1; }
+.beta-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: .625rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.16);
+  vertical-align: middle;
+  line-height: 1.2;
+}
 .nav-links {
   display: flex; gap: 2px; flex: 1; overflow-x: auto;
   scrollbar-width: none;
@@ -702,8 +717,8 @@ html[data-theme="dark"] .pct-pill.pos { color: #0b1f14; }
           <i class="chev" aria-hidden="true"></i>
         </button>
         <div class="app-dd-menu" role="listbox">
-          <a href="investmentCalculator.html" class="app-link-calc">Invest <span>Calculator</span></a>
-          <a href="retireCalculator.html" class="app-link-retire">Retire <span>Calculator</span></a>
+          <a href="investmentCalculator.html?v=20260823" class="app-link-calc">Invest <span>Calculator</span></a>
+          <a href="retireCalculator.html?v=20260823" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
         </div>
       </div>
       <nav class="nav-links" aria-label="Sekcie" data-i18n-aria="navSections">
