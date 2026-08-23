@@ -1,6 +1,6 @@
 # Finance Tools
 
-**[emanuel-burdej.github.io/financetools](https://emanuel-burdej.github.io/financetools)**
+**[emanuel-burdej.github.io/financetools](https://emanuel-burdej.github.io/financetools/)**
 
 Two small browser apps for personal investing. Everything stays in your browser.
 
