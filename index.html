@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="sk" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>Finance Tools</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1b1e'/%3E%3Cpath d='M8 22l4-8 3 4 5-9' fill='none' stroke='%23e30613' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='18' y='7' width='8' height='10' rx='1.5' fill='%2316a34a' opacity='.9'/%3E%3C/svg%3E" />
+<style>
+:root {
+  --bg: #fafbfc;
+  --surface: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --line-2: #f3f4f6;
+  --xtb-red: #e30613;
+  --xtb-red-soft: rgba(227, 6, 19, 0.1);
+  --green: #16a34a;
+  --green-soft: rgba(22, 163, 74, 0.12);
+  --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --focus: 0 0 0 3px rgba(37, 99, 235, 0.28);
+  --shadow: 0 8px 28px rgba(16, 24, 40, 0.08);
+  --glow-red: rgba(227, 6, 19, 0.12);
+  --glow-green: rgba(22, 163, 74, 0.12);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1a1b1e;
+  --surface: #24262b;
+  --ink: #f5f6f7;
+  --muted: #9aa0a6;
+  --line: #34373e;
+  --line-2: #2c2e34;
+  --xtb-red-soft: rgba(227, 6, 19, 0.16);
+  --green-soft: rgba(22, 163, 74, 0.16);
+  --focus: 0 0 0 3px rgba(91, 141, 239, 0.35);
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  --glow-red: rgba(227, 6, 19, 0.16);
+  --glow-green: rgba(22, 163, 74, 0.14);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: none; box-shadow: var(--focus); }
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.page::before,
+.page::after {
+  content: "";
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(90px);
+  opacity: .7;
+}
+.page::before {
+  top: -80px;
+  left: 15%;
+  background: var(--glow-red);
+}
+.page::after {
+  top: 40px;
+  right: 10%;
+  background: var(--glow-green);
+}
+
+.topbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px;
+}
+.pref-btn {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 8px;
+  min-width: 40px;
+  height: 34px;
+  padding: 0 10px;
+  font-size: .75rem;
+  font-weight: 700;
+}
+.pref-btn:hover { background: var(--line-2); color: var(--ink); }
+
+.main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 48px 20px 40px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.65rem, 4vw, 2rem);
+  font-weight: 750;
+  letter-spacing: -.03em;
+  text-align: center;
+}
+.subtitle {
+  margin: 0 0 20px;
+  max-width: 420px;
+  font-size: .9375rem;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.45;
+}
+
+.choices {
+  width: min(720px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  min-height: 200px;
+  padding: 32px 24px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  color: var(--ink);
+  overflow: hidden;
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.choice::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+}
+.choice-tracker::before { background: var(--xtb-red); }
+.choice-calc::before { background: var(--green); }
+
+.choice:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+}
+.choice:focus-visible { transform: translateY(-3px); }
+.choice-tracker:hover { border-color: rgba(227, 6, 19, 0.45); }
+.choice-calc:hover { border-color: rgba(22, 163, 74, 0.45); }
+
+.choice-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+}
+.choice-tracker .choice-icon {
+  background: var(--xtb-red-soft);
+  color: var(--xtb-red);
+}
+.choice-calc .choice-icon {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.choice-name {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  text-align: center;
+  line-height: 1.2;
+}
+.choice-tracker .choice-name > span { color: var(--xtb-red); }
+.choice-calc .choice-name > span { color: var(--green); }
+
+@media (max-width: 560px) {
+  .main { padding-top: 28px; }
+  .choices { grid-template-columns: 1fr; }
+  .choice { min-height: 150px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="topbar">
+    <button type="button" class="pref-btn" id="langToggle" title="Language">SK</button>
+    <button type="button" class="pref-btn" id="themeToggle" title="Dark mode" aria-label="Theme">☾</button>
+  </header>
+
+  <main class="main">
+    <h1 class="title">Finance Tools</h1>
+    <p class="subtitle" data-i18n="subtitle">Offline tools for XTB portfolio tracking and investment planning.</p>
+    <nav class="choices" aria-label="Apps">
+      <a class="choice choice-tracker" href="xtbTracker.html">
+        <div class="choice-icon" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+            <path d="M6 22V8h2.8v10.4H26V22H6z" fill="currentColor" opacity=".25"/>
+            <path d="M8 20l5-6 3.5 3.5L23.5 9.5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="23.5" cy="9.5" r="2.2" fill="currentColor"/>
+          </svg>
+        </div>
+        <span class="choice-name">XTB <span>Tracker</span></span>
+      </a>
+
+      <a class="choice choice-calc" href="investmentCalculator.html">
+        <div class="choice-icon" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+            <rect x="7" y="5" width="18" height="22" rx="2.5" stroke="currentColor" stroke-width="2"/>
+            <rect x="10" y="8" width="12" height="4" rx="1" fill="currentColor"/>
+            <circle cx="12" cy="16.5" r="1.3" fill="currentColor"/>
+            <circle cx="16" cy="16.5" r="1.3" fill="currentColor"/>
+            <circle cx="20" cy="16.5" r="1.3" fill="currentColor"/>
+            <circle cx="12" cy="20.5" r="1.3" fill="currentColor"/>
+            <circle cx="16" cy="20.5" r="1.3" fill="currentColor"/>
+            <rect x="15" y="23.2" width="6" height="2.6" rx="1" fill="currentColor"/>
+          </svg>
+        </div>
+        <span class="choice-name">Invest <span>Calculator</span></span>
+      </a>
+    </nav>
+  </main>
+</div>
+
+<script>
+const I18N = {
+  sk: {
+    subtitle: 'Offline nástroje na sledovanie XTB portfólia a plánovanie investícií.',
+    themeToDark: 'Tmavý režim',
+    themeToLight: 'Svetlý režim',
+  },
+  en: {
+    subtitle: 'Offline tools for XTB portfolio tracking and investment planning.',
+    themeToDark: 'Dark mode',
+    themeToLight: 'Light mode',
+  },
+};
+
+const prefs = {
+  lang: localStorage.getItem('xtb-lang') || 'sk',
+  theme: localStorage.getItem('xtb-theme') || 'dark',
+};
+
+function t(key) {
+  const dict = I18N[prefs.lang] || I18N.sk;
+  return dict[key] ?? I18N.sk[key] ?? key;
+}
+
+function applyPrefs() {
+  document.documentElement.lang = prefs.lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  const langBtn = document.getElementById('langToggle');
+  if (langBtn) {
+    langBtn.textContent = prefs.lang === 'en' ? 'EN' : 'SK';
+    langBtn.title = prefs.lang === 'en' ? 'English → SK' : 'Slovenčina → EN';
+  }
+  const themeBtn = document.getElementById('themeToggle');
+  if (themeBtn) {
+    const dark = prefs.theme === 'dark';
+    themeBtn.textContent = dark ? '☀' : '☾';
+    themeBtn.title = dark ? t('themeToLight') : t('themeToDark');
+    themeBtn.setAttribute('aria-label', themeBtn.title);
+  }
+  document.documentElement.setAttribute('data-theme', prefs.theme);
+  const meta = document.querySelector('meta[name="color-scheme"]');
+  if (meta) meta.setAttribute('content', prefs.theme === 'dark' ? 'dark' : 'light');
+}
+
+document.getElementById('langToggle')?.addEventListener('click', () => {
+  prefs.lang = prefs.lang === 'sk' ? 'en' : 'sk';
+  localStorage.setItem('xtb-lang', prefs.lang);
+  applyPrefs();
+});
+
+document.getElementById('themeToggle')?.addEventListener('click', () => {
+  prefs.theme = prefs.theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('xtb-theme', prefs.theme);
+  applyPrefs();
+});
+
+applyPrefs();
+</script>
+</body>
+</html>
