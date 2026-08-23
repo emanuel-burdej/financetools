@@ -801,8 +801,8 @@ html[data-theme="dark"] .inst-modal-backdrop { background: rgba(0, 0, 0, 0.62); 
           <i class="chev" aria-hidden="true"></i>
         </button>
         <div class="app-dd-menu" role="listbox">
-          <a href="investmentCalculator.html?v=20260823j" class="app-link-calc">Invest <span>Calculator</span></a>
-          <a href="retireCalculator.html?v=20260823j" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
+          <a href="investmentCalculator.html?v=20260823m" class="app-link-calc">Invest <span>Calculator</span></a>
+          <a href="retireCalculator.html?v=20260823m" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
         </div>
       </div>
       <nav class="nav-links" aria-label="Sekcie" data-i18n-aria="navSections">
@@ -1238,8 +1238,18 @@ function parseXtbWorkbook(files) {
   let reportAsOf = null;
   for (const r of openRaw) {
     if (r[0] === 'Data as of report generated') reportAsOf = isoFromExcel(r[1]);
-    if (r[0] === 'My Trades' && r[1] === 'Value') { summary.value = toNum(r[2]); summary.currency = r[3] || currency; }
-    if (r[0] === 'My Trades' && r[1] === 'Profit') summary.profit = toNum(r[2]);
+    // XTB môže mať viac produktov (My Trades, Investment Plans, …) — sčítaj Value/Profit
+    if (r[1] === 'Value' && r[2] != null && r[2] !== '') {
+      const v = toNum(r[2]);
+      if (v != null) {
+        summary.value = (summary.value || 0) + v;
+        if (r[3]) summary.currency = r[3];
+      }
+    }
+    if (r[1] === 'Profit' && r[2] != null && r[2] !== '') {
+      const v = toNum(r[2]);
+      if (v != null) summary.profit = (summary.profit || 0) + v;
+    }
   }
 
   const openPositions = [];
@@ -2218,7 +2228,7 @@ const state = {
   tab: 'open',
   sortKey: null,
   sortDir: 1,
-  openSortKey: 'netProfitPct',
+  openSortKey: 'value',
   openSortDir: -1,
   collapsedGroups: {},
   chartPeriod: 'max',
