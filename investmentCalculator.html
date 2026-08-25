@@ -39,8 +39,7 @@
   --chart-axis: #9ca3af;
   --results-head: #15803d;
   --field-bg: #ffffff;
-  --field-border: #243b53;
-  --field-shadow: 1px 1px 0 rgba(36, 59, 83, 0.18);
+  --field-border: #d1d5db;
 }
 
 html[data-theme="dark"] {
@@ -72,8 +71,7 @@ html[data-theme="dark"] {
   --chart-axis: #c5cad3;
   --results-head: #1f6b3a;
   --field-bg: #2c2e34;
-  --field-border: #9aa0a6;
-  --field-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+  --field-border: #3f434c;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -142,30 +140,6 @@ button, input, select { font: inherit; }
 .app-link-tracker span { color: #e30613; }
 .app-link-calc span { color: var(--green); }
 .app-link-retire span { color: #6366f1; }
-.beta-badge {
-  display: inline-flex;
-  align-items: center;
-  margin-left: 6px;
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-size: .625rem;
-  font-weight: 700;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.16);
-  vertical-align: middle;
-  line-height: 1.2;
-}
-.btn-calc {
-  appearance: none; border: 0; cursor: pointer;
-  background: var(--green); color: #fff;
-  font-weight: 700; font-size: .8125rem;
-  border-radius: 2px; padding: 0 16px; height: 32px;
-  display: inline-flex; align-items: center; gap: 6px;
-  justify-self: start;
-}
-.btn-calc:hover { background: var(--green-hover); }
 .nav-actions { margin-left: auto; display: flex; gap: 6px; align-items: center; }
 .pref-toggles { display: inline-flex; align-items: center; gap: 6px; }
 .pref-btn {
@@ -221,56 +195,88 @@ button, input, select { font: inherit; }
   line-height: 1.2;
   border-bottom: 1px solid var(--line);
 }
-.panel-body { padding: 12px 14px 14px; }
-.panel-body.tight { padding: 12px 14px; }
+.panel-body { padding: 14px; }
 .results-body {
   padding: 12px 14px 14px;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
-.kpi-list { display: grid; gap: 6px; margin-bottom: 12px; }
-
-/* Compact label | boxed control (calculator.net style) */
-.form {
-  display: grid;
-  grid-template-columns: minmax(110px, 40%) minmax(0, 1fr);
-  column-gap: 10px;
-  row-gap: 6px;
-  align-items: center;
+.kpi-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 12px 28px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
 }
-.form > label {
-  margin: 0;
-  font-size: .8125rem;
-  font-weight: 600;
+.kpi-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  text-align: left;
+}
+.kpi-row span {
+  color: var(--muted);
+  font-size: .6875rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+.kpi-row strong {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: .875rem;
+  line-height: 1.25;
   color: var(--ink);
-  line-height: 1.15;
+}
+.kpi-row.hero strong { color: var(--green); }
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.field:last-of-type { margin-bottom: 0; }
+.field-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 220px);
+  align-items: center;
+  gap: 10px;
+}
+.field-top.field-top-wide {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.field-top label {
+  font-size: .75rem;
+  font-weight: 650;
+  color: var(--muted);
+  margin: 0;
 }
 .control {
   display: flex;
   align-items: center;
-  gap: 0;
-  min-width: 0;
   width: 100%;
-  height: 32px;
+  height: 30px;
   padding: 0 8px;
   background: var(--field-bg);
   border: 1px solid var(--field-border);
-  border-radius: 2px;
-  box-shadow: var(--field-shadow);
+  border-radius: 6px;
 }
-.control:focus-within {
-  box-shadow: var(--focus);
-}
+.control:focus-within { box-shadow: var(--focus); }
 .prefix, .suffix {
   flex-shrink: 0;
-  font-size: .8125rem;
+  font-size: .75rem;
   font-weight: 500;
-  color: var(--ink);
+  color: var(--muted);
   white-space: nowrap;
   line-height: 1;
 }
-.suffix { color: var(--muted); margin-left: 6px; }
-.prefix { margin-right: 4px; }
+.prefix { margin-right: 3px; }
+.suffix { margin-left: 4px; }
 .input, .select {
   flex: 1;
   min-width: 0;
@@ -279,10 +285,11 @@ button, input, select { font: inherit; }
   border: 0;
   background: transparent;
   color: var(--ink);
-  border-radius: 0;
   padding: 0;
-  font-size: .875rem;
-  font-weight: 500;
+  font-size: .8125rem;
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
   box-shadow: none;
 }
 .input:focus, .select:focus { outline: none; box-shadow: none; }
@@ -292,65 +299,58 @@ button, input, select { font: inherit; }
 .select {
   cursor: pointer;
   appearance: none;
+  text-align: right;
+  text-align-last: right;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0 center;
-  padding-right: 16px;
+  padding-right: 14px;
+}
+.select option {
+  text-align: left;
+  direction: ltr;
 }
 .radios {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px 12px;
-  font-size: .8125rem;
+  font-size: .75rem;
   color: var(--ink);
-  min-height: 32px;
+  min-height: 30px;
 }
-.radios label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 500; }
-.radios input { accent-color: var(--blue); margin: 0; }
-
-.btn-calc {
-  appearance: none; border: 0; cursor: pointer;
-  background: var(--green); color: #fff;
-  font-weight: 700; font-size: .8125rem;
-  border-radius: 2px; padding: 0 16px; height: 32px;
-  display: inline-flex; align-items: center; gap: 6px;
-  justify-self: start;
+.radios label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
 }
-.btn-calc:hover { background: var(--green-hover); }
-.form-actions {
-  grid-column: 2;
-  margin-top: 2px;
-}
-
-.kpi-row {
-  display: flex; justify-content: space-between; gap: 12px;
-  font-size: .875rem;
-}
-.kpi-row span { color: var(--muted); }
-.kpi-row strong {
-  font-family: var(--mono); font-variant-numeric: tabular-nums;
-  font-weight: 700;
-}
-.kpi-row.hero strong { font-size: 1.05rem; color: var(--ink); }
+.radios input { accent-color: var(--green); margin: 0; }
 
 .donut-wrap {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 20px;
-  margin-top: auto;
-  padding-top: 8px;
+  gap: 24px 28px;
+  flex: 1;
+  min-height: 200px;
+  padding: 8px 0 4px;
 }
 .donut-box {
   position: relative;
-  width: 160px;
-  height: 160px;
+  width: var(--donut-size, 220px);
+  height: var(--donut-size, 220px);
   flex-shrink: 0;
 }
 .donut-box canvas {
   display: block;
+  width: 100%;
+  height: 100%;
   cursor: default;
 }
 .donut-tip {
@@ -471,8 +471,8 @@ tr.year-end td {
           <i class="chev" aria-hidden="true"></i>
         </button>
         <div class="app-dd-menu" role="listbox">
-          <a href="xtbTracker.html?v=20260823p" class="app-link-tracker">XTB <span>Tracker</span></a>
-          <a href="retireCalculator.html?v=20260823p" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
+          <a href="xtbTracker.html" class="app-link-tracker">XTB <span>Tracker</span></a>
+          <a href="retireCalculator.html" class="app-link-retire">Retire <span>Calculator</span></a>
         </div>
       </div>
       <div class="nav-actions">
@@ -488,64 +488,83 @@ tr.year-end td {
     <div class="layout">
       <section class="panel">
         <div class="section-head" data-i18n="inputs">Vstupy</div>
-        <div class="panel-body tight">
-          <div class="form">
-            <label for="startAmount" data-i18n="startAmount">Počiatočná suma</label>
-            <div class="control">
-              <span class="prefix">€</span>
-              <input class="input" id="startAmount" type="number" min="0" step="100" value="20000" />
+        <div class="panel-body">
+          <div class="field">
+            <div class="field-top">
+              <label for="startAmount" data-i18n="startAmount">Počiatočná suma</label>
+              <div class="control">
+                <input class="input" id="startAmount" type="number" min="0" step="100" value="20000" />
+                <span class="suffix">€</span>
+              </div>
             </div>
+          </div>
 
-            <label for="years" data-i18n="after">Dĺžka</label>
-            <div class="control">
-              <input class="input" id="years" type="number" min="1" max="100" step="1" value="10" />
-              <span class="suffix" data-i18n="years">rokov</span>
+          <div class="field">
+            <div class="field-top">
+              <label for="years" data-i18n="after">Dĺžka</label>
+              <div class="control">
+                <input class="input" id="years" type="number" min="1" max="100" step="1" value="10" />
+                <span class="suffix" data-i18n="years">rokov</span>
+              </div>
             </div>
+          </div>
 
-            <label for="rate" data-i18n="returnRate">Výnos</label>
-            <div class="control">
-              <input class="input" id="rate" type="number" min="0" max="100" step="0.1" value="7" />
-              <span class="suffix">%</span>
+          <div class="field">
+            <div class="field-top">
+              <label for="rate" data-i18n="returnRate">Výnos</label>
+              <div class="control">
+                <input class="input" id="rate" type="number" min="0" max="100" step="0.1" value="7" />
+                <span class="suffix">%</span>
+              </div>
             </div>
+          </div>
 
-            <label for="compound" data-i18n="compound">Úročenie</label>
-            <div class="control">
-              <select class="select" id="compound">
-                <option value="1" data-i18n="annually">ročne</option>
-                <option value="2" data-i18n="semiannually">polročne</option>
-                <option value="4" data-i18n="quarterly">štvrťročne</option>
-                <option value="12" data-i18n="monthly">mesačne</option>
-                <option value="24" data-i18n="semimonthly">dvakrát mesačne</option>
-                <option value="26" data-i18n="biweekly">raz za 2 týždne</option>
-                <option value="52" data-i18n="weekly">týždenne</option>
-                <option value="365" data-i18n="daily">denne</option>
-                <option value="continuous" data-i18n="continuously" selected>kontinuálne</option>
-              </select>
+          <div class="field">
+            <div class="field-top">
+              <label for="compound" data-i18n="compound">Úročenie</label>
+              <div class="control">
+                <select class="select" id="compound">
+                  <option value="1" data-i18n="annually">ročne</option>
+                  <option value="2" data-i18n="semiannually">polročne</option>
+                  <option value="4" data-i18n="quarterly">štvrťročne</option>
+                  <option value="12" data-i18n="monthly">mesačne</option>
+                  <option value="24" data-i18n="semimonthly">dvakrát mesačne</option>
+                  <option value="26" data-i18n="biweekly">raz za 2 týždne</option>
+                  <option value="52" data-i18n="weekly">týždenne</option>
+                  <option value="365" data-i18n="daily">denne</option>
+                  <option value="continuous" data-i18n="continuously" selected>kontinuálne</option>
+                </select>
+              </div>
             </div>
+          </div>
 
-            <label for="contribution" data-i18n="contribution">Dodatočný vklad</label>
-            <div class="control">
-              <span class="prefix">€</span>
-              <input class="input" id="contribution" type="number" min="0" step="50" value="1000" />
+          <div class="field">
+            <div class="field-top">
+              <label for="contribution" data-i18n="contribution">Dodatočný vklad</label>
+              <div class="control">
+                <input class="input" id="contribution" type="number" min="0" step="50" value="1000" />
+                <span class="suffix">€</span>
+              </div>
             </div>
+          </div>
 
-            <label data-i18n="contributeAt">Vklad na</label>
-            <div class="radios" role="group">
-              <label><input type="radio" name="when" value="begin" /> <span data-i18n="beginning">začiatku</span></label>
-              <label><input type="radio" name="when" value="end" checked /> <span data-i18n="end">konci</span></label>
+          <div class="field">
+            <div class="field-top field-top-wide">
+              <label data-i18n="contributeAt">Vklad na</label>
+              <div class="radios" role="group">
+                <label><input type="radio" name="when" value="begin" /> <span data-i18n="beginning">začiatku</span></label>
+                <label><input type="radio" name="when" value="end" checked /> <span data-i18n="end">konci</span></label>
+              </div>
             </div>
+          </div>
 
-            <label data-i18n="ofEach">každého</label>
-            <div class="radios" role="group">
-              <label><input type="radio" name="freq" value="month" checked /> <span data-i18n="month">mesiaca</span></label>
-              <label><input type="radio" name="freq" value="year" /> <span data-i18n="year">roku</span></label>
-            </div>
-
-            <div class="form-actions">
-              <button type="button" class="btn-calc" id="calcBtn">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                <span data-i18n="calculate">Vypočítať</span>
-              </button>
+          <div class="field">
+            <div class="field-top field-top-wide">
+              <label data-i18n="ofEach">každého</label>
+              <div class="radios" role="group">
+                <label><input type="radio" name="freq" value="month" checked /> <span data-i18n="month">mesiaca</span></label>
+                <label><input type="radio" name="freq" value="year" /> <span data-i18n="year">roku</span></label>
+              </div>
             </div>
           </div>
         </div>
@@ -562,7 +581,7 @@ tr.year-end td {
           </div>
           <div class="donut-wrap">
             <div class="donut-box">
-              <canvas id="donut" width="160" height="160" aria-label="Breakdown"></canvas>
+              <canvas id="donut" width="220" height="220" aria-label="Breakdown"></canvas>
               <div id="donutTip" class="donut-tip" hidden></div>
             </div>
             <div class="legend">
@@ -628,7 +647,6 @@ const I18N = {
     contribution: 'Dodatočný vklad',
     contributeAt: 'Vklad na', beginning: 'začiatku', end: 'konci',
     ofEach: 'každého', month: 'mesiaca', year: 'roku',
-    calculate: 'Vypočítať',
     endBalance: 'Konečný zostatok', totalContrib: 'Celkové vklady', totalInterest: 'Celkový výnos',
     annual: 'Ročný', monthlySched: 'Mesačný',
     colYear: 'Rok', colMonth: 'Mesiac', colDeposit: 'Vklad', colInterest: 'Výnos', colBalance: 'Zostatok',
@@ -649,7 +667,6 @@ const I18N = {
     contribution: 'Additional Contribution',
     contributeAt: 'Contribute at the', beginning: 'beginning', end: 'end',
     ofEach: 'of each', month: 'month', year: 'year',
-    calculate: 'Calculate',
     endBalance: 'End Balance', totalContrib: 'Total Contributions', totalInterest: 'Total Return',
     annual: 'Annual Schedule', monthlySched: 'Monthly Schedule',
     colYear: 'Year', colMonth: 'Month', colDeposit: 'Deposit', colInterest: 'Return', colBalance: 'Ending balance',
@@ -741,9 +758,30 @@ function bindAppDropdown() {
   });
 }
 
+const APP_PAGE_RE = /(?:^|\/)(index|xtbTracker|investmentCalculator|retireCalculator)\.html(?:$|\?|#)/;
+
+function stripCacheBustFromAddress() {
+  const url = new URL(location.href);
+  if (!url.searchParams.has('v')) return;
+  url.searchParams.delete('v');
+  const q = url.searchParams.toString();
+  history.replaceState(null, '', url.pathname + (q ? `?${q}` : '') + url.hash);
+}
+
+function bindCacheBustLinks() {
+  document.querySelectorAll('a[href]').forEach((a) => {
+    const raw = a.getAttribute('href');
+    if (!raw || !APP_PAGE_RE.test(raw)) return;
+    a.addEventListener('click', () => {
+      const base = (a.getAttribute('href') || raw).split('?')[0].split('#')[0];
+      a.setAttribute('href', `${base}?v=${Date.now()}`);
+    });
+  });
+}
+
 function money(n) {
   return new Intl.NumberFormat(prefs.lang === 'en' ? 'en-US' : 'sk-SK', {
-    style: 'currency', currency: 'EUR', maximumFractionDigits: 2,
+    style: 'currency', currency: 'EUR', maximumFractionDigits: 0,
   }).format(n || 0);
 }
 
@@ -881,12 +919,29 @@ function calculate(inputs) {
   };
 }
 
-const donutState = { parts: [], size: 160, r: 68, inner: 40, cx: 80, cy: 80, bound: false };
+const donutState = { parts: [], size: 220, r: 94, inner: 54, cx: 110, cy: 110, bound: false };
+
+function resolveDonutSize() {
+  const wrap = document.querySelector('.donut-wrap');
+  const box = document.querySelector('.donut-box');
+  if (!wrap || !box) return 220;
+  const legend = wrap.querySelector('.legend');
+  const legendW = legend ? legend.getBoundingClientRect().width + 28 : 0;
+  const styles = getComputedStyle(wrap);
+  const padX = (parseFloat(styles.paddingLeft) || 0) + (parseFloat(styles.paddingRight) || 0);
+  const padY = (parseFloat(styles.paddingTop) || 0) + (parseFloat(styles.paddingBottom) || 0);
+  const availW = Math.max(140, wrap.clientWidth - legendW - padX);
+  const availH = Math.max(140, wrap.clientHeight - padY);
+  const size = Math.floor(Math.min(280, availW, availH));
+  box.style.setProperty('--donut-size', size + 'px');
+  return size;
+}
 
 function drawDonut(canvas, parts) {
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
-  const size = 160;
+  const size = resolveDonutSize();
   canvas.width = size * dpr;
   canvas.height = size * dpr;
   canvas.style.width = size + 'px';
@@ -895,7 +950,11 @@ function drawDonut(canvas, parts) {
   ctx.clearRect(0, 0, size, size);
 
   const total = parts.reduce((s, p) => s + Math.max(0, p.value), 0) || 1;
-  const cx = size / 2, cy = size / 2, r = 68, inner = 40;
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = size * 0.425;
+  const inner = size * 0.25;
+  const labelPx = Math.max(11, Math.round(size * 0.055));
   donutState.cx = cx;
   donutState.cy = cy;
   donutState.r = r;
@@ -923,13 +982,12 @@ function drawDonut(canvas, parts) {
       const lx = cx + Math.cos(mid) * ((r + inner) / 2);
       const ly = cy + Math.sin(mid) * ((r + inner) / 2);
       ctx.fillStyle = '#fff';
-      ctx.font = '700 11px ' + cssVar('--sans', 'sans-serif');
+      ctx.font = '700 ' + labelPx + 'px ' + cssVar('--sans', 'sans-serif');
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(Math.round(share * 100) + '%', lx, ly);
     }
 
-    // ring segment path for hit-test (exclude hole)
     const hit = new Path2D();
     hit.arc(cx, cy, r, start, end, false);
     hit.arc(cx, cy, inner, end, start, true);
@@ -1188,6 +1246,14 @@ function syncPeriodCol() {
   if (th) th.textContent = state.view === 'annual' ? t('colYear') : t('colMonth');
 }
 
+function donutPartsFromResult(result) {
+  return [
+    { value: result.start, color: cssVar('--start', '#5b8def'), label: t('startAmount') },
+    { value: result.totalContrib, color: cssVar('--contrib', '#8bbc21'), label: t('totalContrib') },
+    { value: result.totalInterest, color: cssVar('--interest', '#e06b75'), label: t('totalInterest') },
+  ];
+}
+
 function renderAll(result) {
   state.result = result;
   document.getElementById('endBalance').textContent = money(result.endBalance);
@@ -1203,11 +1269,7 @@ function renderAll(result) {
   document.getElementById('legContribPct').textContent = pct(pContrib);
   document.getElementById('legInterestPct').textContent = pct(pInterest);
 
-  drawDonut(document.getElementById('donut'), [
-    { value: result.start, color: cssVar('--start', '#5b8def'), label: t('startAmount') },
-    { value: result.totalContrib, color: cssVar('--contrib', '#8bbc21'), label: t('totalContrib') },
-    { value: result.totalInterest, color: cssVar('--interest', '#e06b75'), label: t('totalInterest') },
-  ]);
+  drawDonut(document.getElementById('donut'), donutPartsFromResult(result));
 
   renderTable(result);
   syncPeriodCol();
@@ -1222,13 +1284,19 @@ function init() {
   applyTheme();
   applyI18n();
   bindAppDropdown();
+  stripCacheBustFromAddress();
+  bindCacheBustLinks();
   document.getElementById('langToggle').addEventListener('click', () => {
     setLang(prefs.lang === 'sk' ? 'en' : 'sk');
   });
   document.getElementById('themeToggle').addEventListener('click', () => {
     setTheme(prefs.theme === 'dark' ? 'light' : 'dark');
   });
-  document.getElementById('calcBtn').addEventListener('click', runCalc);
+  const panel = document.querySelector('.panel .panel-body');
+  if (panel) {
+    panel.addEventListener('input', runCalc);
+    panel.addEventListener('change', runCalc);
+  }
   document.querySelectorAll('.sched-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.sched-tab').forEach(b => b.classList.remove('active'));
@@ -1241,9 +1309,16 @@ function init() {
     });
   });
   window.addEventListener('resize', () => {
-    if (state.result) drawBars(document.getElementById('bars'), state.result.annual);
+    if (!state.result) return;
+    drawBars(document.getElementById('bars'), state.result.annual);
+    drawDonut(document.getElementById('donut'), donutPartsFromResult(state.result));
   });
   runCalc();
+  requestAnimationFrame(() => {
+    if (state.result) {
+      drawDonut(document.getElementById('donut'), donutPartsFromResult(state.result));
+    }
+  });
 }
 
 init();

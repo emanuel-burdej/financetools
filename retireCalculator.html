@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="dark" />
 <meta name="referrer" content="no-referrer" />
 <title>Retire Calculator</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234f46e5'/%3E%3Cpath d='M7 22.5V11h2.4v8.8H24V22.5H7z' fill='%23fff' opacity='.22'/%3E%3Cpath d='M8.5 20.5l5.2-6.2 3.2 3.1L23 10' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='23' cy='10' r='2.6' fill='%23fbbf24'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%236366f1'/%3E%3Crect x='7' y='5' width='18' height='22' rx='2' fill='%23fff'/%3E%3Crect x='10' y='8' width='12' height='4' rx='1' fill='%236366f1'/%3E%3Ccircle cx='12' cy='16.5' r='1.3' fill='%236366f1'/%3E%3Ccircle cx='16' cy='16.5' r='1.3' fill='%236366f1'/%3E%3Ccircle cx='20' cy='16.5' r='1.3' fill='%236366f1'/%3E%3Ccircle cx='12' cy='20.5' r='1.3' fill='%236366f1'/%3E%3Ccircle cx='16' cy='20.5' r='1.3' fill='%236366f1'/%3E%3Ccircle cx='20' cy='20.5' r='1.3' fill='%236366f1'/%3E%3Ccircle cx='12' cy='24.5' r='1.3' fill='%236366f1'/%3E%3Crect x='15' y='23.2' width='6' height='2.6' rx='1' fill='%236366f1'/%3E%3C/svg%3E" />
 <style>
 :root {
   --bg: #fafbfc;
@@ -22,9 +22,10 @@
   --green: #16a34a;
   --target: #f59e0b;
   --portfolio: #6366f1;
+  --contrib: #8bbc21;
   --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
-  --radius: 10px;
+  --radius: 12px;
   --shadow: 0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
   --focus: 0 0 0 3px rgba(99, 102, 241, 0.28);
   --nav-bg: rgba(255,255,255,.92);
@@ -51,6 +52,7 @@ html[data-theme="dark"] {
   --green: #16a34a;
   --target: #fbbf24;
   --portfolio: #818cf8;
+  --contrib: #8bbc21;
   --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.25);
   --focus: 0 0 0 3px rgba(129, 140, 248, 0.35);
   --nav-bg: rgba(26, 27, 30, .92);
@@ -81,34 +83,20 @@ button, input { font: inherit; }
 }
 .topnav-inner {
   max-width: 1180px; margin: 0 auto;
-  padding: 0 20px;
-  display: flex; align-items: center; gap: 16px;
-  min-height: 48px;
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 20px;
+  min-height: 56px;
 }
 .app-dd { position: relative; flex-shrink: 0; }
 .app-dd-btn {
   appearance: none; border: 0; background: transparent;
-  font: inherit; font-weight: 700; font-size: .9rem; letter-spacing: -.02em;
+  font: inherit; font-weight: 700; font-size: .95rem; letter-spacing: -.02em;
   color: var(--ink); cursor: pointer;
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 5px 7px; border-radius: 8px; white-space: nowrap;
+  padding: 6px 8px; border-radius: 8px; white-space: nowrap;
 }
 .app-dd-btn:hover { background: var(--line-2); }
 .app-dd-btn .accent { color: var(--accent); }
-.beta-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: .625rem;
-  font-weight: 700;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--accent);
-  background: var(--accent-soft);
-  line-height: 1.2;
-}
-.app-dd-btn .beta-badge { margin-left: 2px; }
 .app-dd-btn .chev {
   width: 0; height: 0;
   border-left: 4px solid transparent;
@@ -119,12 +107,12 @@ button, input { font: inherit; }
 .app-dd.open .app-dd-btn .chev { transform: rotate(180deg); }
 .app-dd-menu {
   display: none;
-  position: absolute; top: calc(100% + 10px); left: 0; z-index: 110;
+  position: absolute; top: calc(100% + 12px); left: 0; z-index: 110;
   min-width: 200px;
   background: var(--elevated);
   border: 1px solid var(--line);
   border-radius: 10px;
-  box-shadow: 0 14px 36px rgba(0,0,0,.55);
+  box-shadow: 0 14px 36px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06);
   padding: 6px;
 }
 .app-dd.open .app-dd-menu { display: block; }
@@ -137,56 +125,47 @@ button, input { font: inherit; }
 .app-dd-menu a:hover { background: var(--line-2); }
 .app-link-tracker span { color: #e30613; }
 .app-link-calc span { color: #16a34a; }
-.app-link-retire span { color: var(--accent); }
+.app-link-retire span { color: #6366f1; }
 .nav-actions { margin-left: auto; display: flex; gap: 6px; align-items: center; }
 .pref-toggles { display: inline-flex; align-items: center; gap: 6px; }
 .pref-btn {
   appearance: none; border: 1px solid var(--line); background: var(--surface);
-  color: var(--muted); border-radius: 8px; padding: 5px 9px;
+  color: var(--muted); border-radius: 8px; padding: 6px 10px;
   cursor: pointer; font-weight: 700; font-size: .75rem;
-  letter-spacing: .03em; line-height: 1; min-width: 38px;
+  letter-spacing: .03em; line-height: 1; min-width: 40px;
 }
-.pref-btn:hover { color: var(--ink); background: var(--line-2); }
+.pref-btn:hover { color: var(--ink); background: var(--line-2); border-color: var(--muted); }
 .pref-btn.theme-btn {
-  min-width: 38px; font-size: .95rem; color: var(--ink); background: var(--line-2);
+  min-width: 40px; font-size: 1rem; padding: 6px 10px;
+  color: var(--ink); border-color: var(--line); background: var(--line-2);
 }
+.pref-btn.theme-btn:hover { border-color: var(--ink); background: var(--surface); }
 
-.app { max-width: 1180px; margin: 0 auto; padding: 16px 20px 48px; width: 100%; }
+.app { max-width: 1180px; margin: 0 auto; padding: 24px 24px 64px; width: 100%; }
 
-.retire-hero {
-  margin-bottom: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 10px;
-}
-.retire-hero .label {
-  font-size: .875rem;
-  font-weight: 600;
-  color: var(--muted);
-}
-.retire-hero .years {
-  font-size: 1.35rem;
-  font-weight: 750;
-  letter-spacing: -.02em;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-}
-.retire-hero .years.ready { color: var(--green); }
-.retire-hero .years.never { color: var(--faint); font-size: 1rem; }
-.retire-hero .hint {
-  flex-basis: 100%;
-  margin: 0;
-  font-size: .75rem;
-  color: var(--faint);
-}
-
-.workspace {
+.layout {
   display: grid;
-  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+  gap: 16px;
   align-items: stretch;
-  margin-bottom: 12px;
+}
+.layout .panel-schedule {
+  grid-column: 1 / -1;
+}
+.layout > .panel-chart {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: visible;
+}
+.layout > .panel-chart > .panel-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  overflow: visible;
 }
 
 .panel {
@@ -195,20 +174,98 @@ button, input { font: inherit; }
   overflow: hidden;
   min-width: 0;
 }
-.panel-body { padding: 12px; }
-.panel-chart .panel-body { padding: 10px 12px 12px; }
+.section-head {
+  background: var(--line-2); color: var(--ink);
+  padding: 10px 16px; font-weight: 700; font-size: .875rem;
+  line-height: 1.2;
+  border-bottom: 1px solid var(--line);
+}
+.panel-body { padding: 14px; }
+
+.results-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 12px 28px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.kpi-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  text-align: left;
+}
+.kpi-row span {
+  color: var(--muted);
+  font-size: .6875rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+.kpi-row strong {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: .875rem;
+  line-height: 1.25;
+  color: var(--ink);
+}
+#retireHeroRow strong { color: var(--accent); }
+#kpiTarget { color: var(--target); }
+.kpi-row.ready strong { color: var(--green); }
+.kpi-row.never strong { color: var(--faint); }
+.kpi-row .kpi-pct {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: .6875rem;
+}
+
+.kpi-tip-wrap {
+  position: relative;
+  cursor: help;
+}
+.kpi-tip-wrap .kpi-label {
+  border-bottom: 1px dashed var(--muted);
+  width: fit-content;
+}
+.kpi-tip {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  z-index: 30;
+  width: 260px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--elevated);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 28px rgba(0,0,0,.45);
+  color: var(--ink);
+  font-size: .6875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  pointer-events: none;
+}
+.kpi-tip-wrap:hover .kpi-tip,
+.kpi-tip-wrap:focus-within .kpi-tip {
+  display: block;
+}
 
 .field {
   display: grid;
-  gap: 5px;
-  margin-bottom: 11px;
+  gap: 6px;
+  margin-bottom: 14px;
 }
 .field:last-of-type { margin-bottom: 0; }
 .field-top {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 .field-top label {
   font-size: .75rem;
@@ -218,9 +275,9 @@ button, input { font: inherit; }
 .control {
   display: flex;
   align-items: center;
-  min-width: 96px;
-  height: 28px;
-  padding: 0 7px;
+  width: 120px;
+  height: 30px;
+  padding: 0 8px;
   background: var(--field-bg);
   border: 1px solid var(--field-border);
   border-radius: 6px;
@@ -282,86 +339,26 @@ button, input { font: inherit; }
   cursor: pointer;
 }
 
-.chart-box { position: relative; width: 100%; }
-.chart-tip {
-  position: absolute;
-  z-index: 5;
-  min-width: 160px;
-  padding: 7px 9px;
-  border-radius: 6px;
-  background: #2a2c32;
-  color: #f5f6f7;
-  border: 1px solid var(--line);
-  font-size: .72rem;
-  line-height: 1.35;
-  pointer-events: none;
-  box-shadow: 0 8px 24px rgba(0,0,0,.35);
-  display: none;
-  transform: translate(-50%, -110%);
-}
-.chart-tip.visible { display: block; }
-.chart-legend {
-  display: flex; flex-wrap: wrap; gap: 10px 14px;
-  margin-top: 8px; font-size: .7rem; color: var(--muted);
-}
-.chart-legend i {
-  display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px;
-}
-.chart-legend .line {
-  display: inline-block; width: 12px; height: 0;
-  border-top: 2px dashed var(--target); margin-right: 5px; vertical-align: middle;
-}
-
-.below {
-  display: grid;
-  gap: 12px;
-}
-
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-.kpi-card {
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-.kpi-card span {
-  display: block;
-  font-size: .7rem;
-  font-weight: 650;
-  color: var(--muted);
-  margin-bottom: 4px;
-}
-.kpi-card strong {
-  display: block;
-  font-family: var(--mono);
-  font-size: .875rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.kpi-card.accent strong { color: var(--accent); }
-
-.section-label {
+.form-note {
+  margin: 0;
   font-size: .75rem;
-  font-weight: 700;
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  margin: 0 0 8px;
+  line-height: 1.4;
 }
 
-.table-wrap { overflow: auto; max-height: 340px; border: 1px solid var(--line); border-radius: var(--radius); }
-table { width: 100%; border-collapse: collapse; font-size: .75rem; }
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+table { width: 100%; border-collapse: collapse; font-size: .8125rem; }
 th, td {
-  padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--line);
+  padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line);
 }
 th {
   position: sticky; top: 0;
   background: var(--th-bg); color: var(--muted);
-  font-weight: 700; font-size: .68rem; text-transform: uppercase;
+  font-weight: 700; font-size: .75rem; text-transform: uppercase;
   letter-spacing: .03em;
 }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); }
@@ -381,13 +378,70 @@ tr.retire-row td {
   display: block; height: 100%; background: var(--accent); border-radius: 99px;
 }
 
+.chart-box {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+  overflow: visible;
+}
+.chart-box canvas {
+  display: block;
+  width: 100%;
+  height: 280px;
+}
+.chart-tip {
+  position: absolute;
+  z-index: 5;
+  min-width: 160px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  background: #2a2c32;
+  color: #f5f6f7;
+  border: 1px solid var(--line);
+  font-size: .72rem;
+  line-height: 1.35;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  display: none;
+  transform: translate(-50%, -110%);
+}
+.chart-tip.visible { display: block; }
+.chart-legend {
+  display: flex; flex-wrap: wrap; gap: 10px 16px;
+  margin-top: 4px; font-size: .75rem; color: var(--muted);
+  justify-content: center;
+  align-items: center;
+}
+.chart-legend i {
+  display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px;
+}
+.chart-legend .dot-contrib {
+  display: inline-block; width: 8px; height: 8px; border-radius: 2px;
+  background: var(--contrib, #8bbc21); margin-right: 5px;
+}
+.chart-legend .line {
+  display: inline-block; width: 12px; height: 0;
+  border-top: 2px dashed var(--target); margin-right: 5px; vertical-align: middle;
+}
+.chart-legend .legend-target {
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+}
+.chart-legend .legend-target .kpi-tip {
+  left: 50%;
+  top: auto;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: 260px;
+}
+
 @media (max-width: 900px) {
-  .workspace { grid-template-columns: 1fr; }
-  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .layout { grid-template-columns: 1fr; }
 }
 @media (max-width: 720px) {
-  .topnav-inner, .app { padding-left: 14px; padding-right: 14px; }
-  .kpi-grid { grid-template-columns: 1fr; }
+  .topnav-inner, .app { padding-left: 16px; padding-right: 16px; }
 }
 </style>
 </head>
@@ -398,12 +452,11 @@ tr.retire-row td {
       <div class="app-dd" id="appDd">
         <button type="button" class="app-dd-btn" id="appDdBtn" aria-haspopup="listbox" aria-expanded="false">
           Retire <span class="accent">Calculator</span>
-          <span class="beta-badge">beta</span>
           <i class="chev" aria-hidden="true"></i>
         </button>
         <div class="app-dd-menu" role="listbox">
-          <a href="xtbTracker.html?v=20260823p" class="app-link-tracker">XTB <span>Tracker</span></a>
-          <a href="investmentCalculator.html?v=20260823p" class="app-link-calc">Invest <span>Calculator</span></a>
+          <a href="xtbTracker.html" class="app-link-tracker">XTB <span>Tracker</span></a>
+          <a href="investmentCalculator.html" class="app-link-calc">Invest <span>Calculator</span></a>
         </div>
       </div>
       <div class="nav-actions">
@@ -416,21 +469,16 @@ tr.retire-row td {
   </header>
 
   <main class="app">
-    <div class="retire-hero" id="retireHero">
-      <span class="label" data-i18n="youCanRetire">You can retire in</span>
-      <span class="years" id="retireYears">—</span>
-      <p class="hint" id="retireHint"></p>
-    </div>
-
-    <div class="workspace">
-      <section class="panel panel-inputs">
+    <div class="layout">
+      <section class="panel">
+        <div class="section-head" data-i18n="inputs">Vstupy</div>
         <div class="panel-body">
           <div class="field">
             <div class="field-top">
               <label for="portfolio" data-i18n="portfolio">Súčasná hodnota portfólia</label>
               <div class="control">
-                <span class="prefix">€</span>
                 <input class="input" id="portfolio" type="number" min="0" step="1000" value="50000" />
+                <span class="suffix">€</span>
               </div>
             </div>
             <input class="slider" id="portfolioSlider" type="range" min="0" max="500000" step="1000" value="50000" />
@@ -440,8 +488,8 @@ tr.retire-row td {
             <div class="field-top">
               <label for="monthlyInvest" data-i18n="monthlyInvest">Mesačný vklad</label>
               <div class="control">
-                <span class="prefix">€</span>
                 <input class="input" id="monthlyInvest" type="number" min="0" step="50" value="200" />
+                <span class="suffix">€</span>
               </div>
             </div>
             <input class="slider" id="monthlyInvestSlider" type="range" min="0" max="5000" step="50" value="200" />
@@ -460,124 +508,133 @@ tr.retire-row td {
 
           <div class="field">
             <div class="field-top">
-              <label for="monthlySpend" data-i18n="monthlySpend">Mesačné výdavky</label>
+              <label for="monthlyWithdraw" data-i18n="monthlyWithdraw">Mesačný výber</label>
               <div class="control">
-                <span class="prefix">€</span>
-                <input class="input" id="monthlySpend" type="number" min="0" step="50" value="750" />
+                <input class="input" id="monthlyWithdraw" type="number" min="0" step="50" value="750" />
+                <span class="suffix">€</span>
               </div>
             </div>
-            <input class="slider" id="monthlySpendSlider" type="range" min="100" max="10000" step="50" value="750" />
-          </div>
-
-          <div class="field">
-            <div class="field-top">
-              <label for="withdrawRate" data-i18n="withdrawRate">Ročný výber</label>
-              <div class="control">
-                <input class="input" id="withdrawRate" type="number" min="1" max="10" step="0.1" value="4" />
-                <span class="suffix">%</span>
-              </div>
-            </div>
-            <input class="slider" id="withdrawRateSlider" type="range" min="2" max="8" step="0.1" value="4" />
+            <input class="slider" id="monthlyWithdrawSlider" type="range" min="0" max="10000" step="50" value="750" />
           </div>
         </div>
       </section>
 
       <section class="panel panel-chart">
+        <div class="section-head" data-i18n="chartTitle">Cesta k dôchodku</div>
         <div class="panel-body">
+          <div class="results-bar">
+            <div class="kpi-row" id="retireHeroRow">
+              <span id="retireLabel" data-i18n="youCanRetire">Do dôchodku môžeš ísť o</span>
+              <strong id="retireYears">—</strong>
+            </div>
+            <div class="kpi-row">
+              <span data-i18n="targetPortfolio">Cieľové portfólio</span>
+              <strong id="kpiTarget">—</strong>
+            </div>
+            <div class="kpi-row">
+              <span data-i18n="gap">Do cieľa chýba</span>
+              <strong id="kpiGap">—</strong>
+            </div>
+          </div>
           <div class="chart-box">
-            <canvas id="pathChart" width="540" height="280" aria-label="Retirement path chart"></canvas>
+            <canvas id="pathChart" aria-label="Retirement path chart"></canvas>
             <div id="chartTip" class="chart-tip" hidden></div>
           </div>
           <div class="chart-legend">
             <span><i style="background:var(--portfolio)"></i><span data-i18n="legendPortfolio">Portfólio</span></span>
-            <span><span class="line"></span><span data-i18n="legendTarget">Cieľ (4% pravidlo)</span></span>
+            <span><i class="dot-contrib"></i><span data-i18n="legendContrib">Vklady</span></span>
+            <span class="legend-target kpi-tip-wrap" tabindex="0">
+              <span class="line"></span><span class="kpi-label" data-i18n="legendTarget">Cieľ (pravidlo 4 %)</span>
+              <div class="kpi-tip" id="legendHint"></div>
+            </span>
           </div>
         </div>
       </section>
-    </div>
 
-    <div class="below">
-      <div>
-        <p class="section-label" data-i18n="results">Výsledky</p>
-        <div class="kpi-grid">
-          <div class="kpi-card accent"><span data-i18n="targetPortfolio">Cieľové portfólio</span><strong id="kpiTarget">—</strong></div>
-          <div class="kpi-card"><span data-i18n="annualSpend">Ročné výdavky</span><strong id="kpiAnnual">—</strong></div>
-          <div class="kpi-card"><span data-i18n="safeWithdraw">Bezpečný ročný výber</span><strong id="kpiWithdraw">—</strong></div>
-          <div class="kpi-card"><span data-i18n="gap">Do cieľa chýba</span><strong id="kpiGap">—</strong></div>
-          <div class="kpi-card"><span data-i18n="totalContrib">Celkové vklady do dôchodku</span><strong id="kpiContrib">—</strong></div>
-          <div class="kpi-card"><span data-i18n="retireBalance">Portfólio pri dôchodku</span><strong id="kpiBalance">—</strong></div>
+      <section class="panel panel-schedule">
+        <div class="section-head" data-i18n="schedule">Harmonogram</div>
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="colYear">Rok</th>
+                  <th class="num" data-i18n="colDeposit">Vklady</th>
+                  <th class="num" data-i18n="colGrowth">Výnos</th>
+                  <th class="num" data-i18n="colBalance">Zostatok</th>
+                  <th class="num" data-i18n="colProgress">Pokrok</th>
+                </tr>
+              </thead>
+              <tbody id="schedBody"></tbody>
+            </table>
+          </div>
         </div>
-      </div>
-
-      <div>
-        <p class="section-label" data-i18n="schedule">Harmonogram</p>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th data-i18n="colYear">Rok</th>
-                <th class="num" data-i18n="colDeposit">Vklady</th>
-                <th class="num" data-i18n="colGrowth">Výnos</th>
-                <th class="num" data-i18n="colBalance">Zostatok</th>
-                <th class="num" data-i18n="colProgress">Progres</th>
-              </tr>
-            </thead>
-            <tbody id="schedBody"></tbody>
-          </table>
-        </div>
-      </div>
+      </section>
     </div>
   </main>
 </div>
 
 <script>
+/** Trinity / Bengen safe withdrawal rate — fixed. */
+const SAFE_WITHDRAWAL_RATE = 0.04;
+
 const I18N = {
   sk: {
     inputs: 'Vstupy', results: 'Výsledky', chartTitle: 'Cesta k dôchodku', schedule: 'Harmonogram',
     portfolio: 'Súčasná hodnota portfólia', monthlyInvest: 'Mesačný vklad',
-    returnRate: 'Očakávaný výnos', monthlySpend: 'Mesačné výdavky', withdrawRate: 'Ročný výber',
-    ruleNote: 'Pravidlo 4 %: cieľové portfólio = ročné výdavky ÷ výberová sadzba. Pri 4 % môžeš z portfólia bezpečne čerpať každý rok.',
-    youCanRetire: 'Môžeš ísť do dôchodku o',
+    returnRate: 'Očakávaný výnos', monthlyWithdraw: 'Mesačný výber',
+    annualWithdraw: 'Ročný výber',
+    ruleNote: 'Cieľ = mesačný výber × 12 × 25 (pravidlo 4 %). Do cieľa dokladáš mesačný vklad; po dosiahnutí cieľa začínaš vyberať.',
+    youCanRetire: 'Do dôchodku môžeš ísť o',
+    youCanRetireNow: 'Do dôchodku môžeš ísť',
     yearsUnit: '{n} rokov',
     yearUnit: '{n} rok',
     yearsUnitFew: '{n} roky',
-    canRetireNow: 'Môžeš ísť do dôchodku teraz',
-    neverRetire: 'S týmito parametrami cieľ nedosiahneš',
-    hintTarget: 'Cieľ podľa {rate}% pravidla: {target}',
+    yearsUnitFrac: '{n} roka',
+    canRetireNow: 'teraz',
+    neverRetire: 'Pri týchto parametroch cieľ nedosiahneš',
+    hintTarget: 'Pravidlo 4 %: na mesačný výber {monthly} treba nasporiť {target} (ročný výber × 25).',
     targetPortfolio: 'Cieľové portfólio',
-    annualSpend: 'Ročné výdavky',
-    safeWithdraw: 'Bezpečný ročný výber',
     gap: 'Do cieľa chýba',
+    progressNow: 'Aktuálny pokrok',
     totalContrib: 'Celkové vklady do dôchodku',
     retireBalance: 'Portfólio pri dôchodku',
     legendPortfolio: 'Portfólio',
-    legendTarget: 'Cieľ (pravidlo výberu)',
-    colYear: 'Rok', colDeposit: 'Vklady', colGrowth: 'Výnos', colBalance: 'Zostatok', colProgress: 'Progres',
-    tipYear: 'Rok {n}', tipPortfolio: 'Portfólio', tipTarget: 'Cieľ',
+    legendContrib: 'Vklady',
+    legendTarget: 'Cieľ (pravidlo 4 %)',
+    colYear: 'Rok', colDeposit: 'Vklady', colGrowth: 'Výnos', colBalance: 'Zostatok', colProgress: 'Pokrok',
+    tipYear: 'Rok {n}', tipPortfolio: 'Portfólio', tipContrib: 'Vklady', tipTarget: 'Cieľ',
+    chartTarget: 'Cieľ {amount}',
+    growthShare: 'výnos',
     themeToDark: 'Tmavý režim', themeToLight: 'Svetlý režim',
   },
   en: {
     inputs: 'Inputs', results: 'Results', chartTitle: 'Path to retirement', schedule: 'Schedule',
-    portfolio: 'Current portfolio value', monthlyInvest: 'Monthly investment',
-    returnRate: 'Expected return', monthlySpend: 'Monthly expenses', withdrawRate: 'Annual withdrawal',
-    ruleNote: '4% rule: target portfolio = annual expenses ÷ withdrawal rate. At 4% you can safely draw from the portfolio each year.',
+    portfolio: 'Current portfolio value', monthlyInvest: 'Monthly contribution',
+    returnRate: 'Expected return', monthlyWithdraw: 'Monthly withdrawal',
+    annualWithdraw: 'Annual withdrawal',
+    ruleNote: 'Target = monthly withdrawal × 12 × 25 (4% rule). You keep contributing until you hit the target, then withdraw.',
     youCanRetire: 'You can retire in',
+    youCanRetireNow: 'You can retire',
     yearsUnit: '{n} years',
     yearUnit: '{n} year',
     yearsUnitFew: '{n} years',
-    canRetireNow: 'You can retire now',
-    neverRetire: 'With these inputs you never reach the target',
-    hintTarget: 'Target by the {rate}% rule: {target}',
+    yearsUnitFrac: '{n} years',
+    canRetireNow: 'now',
+    neverRetire: 'With these inputs you will never reach the target',
+    hintTarget: '4% rule: to withdraw {monthly} per month, you need to save {target} (annual withdrawal × 25).',
     targetPortfolio: 'Target portfolio',
-    annualSpend: 'Annual expenses',
-    safeWithdraw: 'Safe annual withdrawal',
-    gap: 'Still needed',
+    gap: 'Remaining to target',
+    progressNow: 'Current progress',
     totalContrib: 'Total contributions until retirement',
     retireBalance: 'Portfolio at retirement',
     legendPortfolio: 'Portfolio',
-    legendTarget: 'Target (withdrawal rule)',
-    colYear: 'Year', colDeposit: 'Deposits', colGrowth: 'Return', colBalance: 'Balance', colProgress: 'Progress',
-    tipYear: 'Year {n}', tipPortfolio: 'Portfolio', tipTarget: 'Target',
+    legendContrib: 'Contributions',
+    legendTarget: 'Target (4% rule)',
+    colYear: 'Year', colDeposit: 'Contributions', colGrowth: 'Return', colBalance: 'Balance', colProgress: 'Progress',
+    tipYear: 'Year {n}', tipPortfolio: 'Portfolio', tipContrib: 'Contributions', tipTarget: 'Target',
+    chartTarget: 'Target {amount}',
+    growthShare: 'growth',
     themeToDark: 'Dark mode', themeToLight: 'Light mode',
   },
 };
@@ -656,15 +713,30 @@ function bindAppDropdown() {
   });
 }
 
+const APP_PAGE_RE = /(?:^|\/)(index|xtbTracker|investmentCalculator|retireCalculator)\.html(?:$|\?|#)/;
+
+function stripCacheBustFromAddress() {
+  const url = new URL(location.href);
+  if (!url.searchParams.has('v')) return;
+  url.searchParams.delete('v');
+  const q = url.searchParams.toString();
+  history.replaceState(null, '', url.pathname + (q ? `?${q}` : '') + url.hash);
+}
+
+function bindCacheBustLinks() {
+  document.querySelectorAll('a[href]').forEach((a) => {
+    const raw = a.getAttribute('href');
+    if (!raw || !APP_PAGE_RE.test(raw)) return;
+    a.addEventListener('click', () => {
+      const base = (a.getAttribute('href') || raw).split('?')[0].split('#')[0];
+      a.setAttribute('href', `${base}?v=${Date.now()}`);
+    });
+  });
+}
+
 function money(n) {
   return new Intl.NumberFormat(prefs.lang === 'en' ? 'en-US' : 'sk-SK', {
     style: 'currency', currency: 'EUR', maximumFractionDigits: 0,
-  }).format(n || 0);
-}
-
-function moneyExact(n) {
-  return new Intl.NumberFormat(prefs.lang === 'en' ? 'en-US' : 'sk-SK', {
-    style: 'currency', currency: 'EUR', maximumFractionDigits: 2,
   }).format(n || 0);
 }
 
@@ -673,9 +745,12 @@ function formatYears(years) {
   const text = prefs.lang === 'sk'
     ? String(n).replace('.', ',')
     : String(n);
+  const whole = Math.abs(n - Math.round(n)) < 1e-9;
   if (prefs.lang === 'sk') {
-    if (n === 1) return t('yearUnit', { n: text });
-    if (n > 1 && n < 5) return t('yearsUnitFew', { n: text });
+    if (!whole) return t('yearsUnitFrac', { n: text });
+    const i = Math.round(n);
+    if (i === 1) return t('yearUnit', { n: text });
+    if (i >= 2 && i <= 4) return t('yearsUnitFew', { n: text });
     return t('yearsUnit', { n: text });
   }
   return n === 1 ? t('yearUnit', { n: text }) : t('yearsUnit', { n: text });
@@ -690,12 +765,13 @@ function readInputs() {
     portfolio: Math.max(0, Number(document.getElementById('portfolio').value) || 0),
     monthlyInvest: Math.max(0, Number(document.getElementById('monthlyInvest').value) || 0),
     annualRate: Math.max(0, (Number(document.getElementById('returnRate').value) || 0) / 100),
-    monthlySpend: Math.max(0, Number(document.getElementById('monthlySpend').value) || 0),
-    withdrawRate: Math.max(0.001, (Number(document.getElementById('withdrawRate').value) || 4) / 100),
+    monthlyWithdraw: Math.max(0, Number(document.getElementById('monthlyWithdraw').value) || 0),
   };
 }
 
+/** Months until portfolio reaches target with growth + monthly deposits. */
 function monthsToTarget(pv, pmt, monthlyRate, target) {
+  if (target <= 0) return 0;
   if (pv >= target) return 0;
   if (monthlyRate <= 0) {
     if (pmt <= 0) return Infinity;
@@ -712,9 +788,17 @@ function buildSchedule(pv, pmt, monthlyRate, months, target) {
   const years = Math.max(1, Math.ceil(months / 12));
   const chartYears = Math.min(80, Math.max(years + 2, 10));
   const annual = [];
-  const points = [{ year: 0, balance: pv }];
+  const points = [{ year: 0, balance: pv, contrib: pv }];
   let balance = pv;
-  let totalContrib = 0;
+  let contribCum = pv;
+
+  annual.push({
+    year: 0,
+    deposit: 0,
+    growth: 0,
+    balance: pv,
+    progress: target > 0 ? Math.min(100, (pv / target) * 100) : 100,
+  });
 
   for (let y = 1; y <= chartYears; y++) {
     let deposit = 0;
@@ -726,12 +810,12 @@ function buildSchedule(pv, pmt, monthlyRate, months, target) {
       if (pmt > 0) {
         balance += pmt;
         deposit += pmt;
-        totalContrib += pmt;
+        contribCum += pmt;
       }
     }
     const progress = target > 0 ? Math.min(100, (balance / target) * 100) : 100;
-    annual.push({ year: y, deposit, growth, balance, progress, totalContrib });
-    points.push({ year: y, balance });
+    annual.push({ year: y, deposit, growth, balance, progress });
+    points.push({ year: y, balance, contrib: contribCum });
   }
 
   const retireMonths = monthsToTarget(pv, pmt, monthlyRate, target);
@@ -754,21 +838,27 @@ function buildSchedule(pv, pmt, monthlyRate, months, target) {
 }
 
 function calculate() {
-  const { portfolio, monthlyInvest, annualRate, monthlySpend, withdrawRate } = readInputs();
-  const annualSpend = monthlySpend * 12;
-  const target = annualSpend / withdrawRate;
+  const { portfolio, monthlyInvest, annualRate, monthlyWithdraw } = readInputs();
+  const annualWithdraw = monthlyWithdraw * 12;
+  const target = annualWithdraw > 0 ? annualWithdraw / SAFE_WITHDRAWAL_RATE : 0;
   const monthlyRate = annualRate / 12;
   const months = monthsToTarget(portfolio, monthlyInvest, monthlyRate, target);
   const years = Number.isFinite(months) ? months / 12 : Infinity;
-  const sched = buildSchedule(portfolio, monthlyInvest, monthlyRate, Number.isFinite(months) ? months : 40 * 12, target);
+  const sched = buildSchedule(
+    portfolio,
+    monthlyInvest,
+    monthlyRate,
+    Number.isFinite(months) ? months : 40 * 12,
+    target,
+  );
 
   return {
     portfolio,
     monthlyInvest,
     annualRate,
-    monthlySpend,
-    withdrawRate,
-    annualSpend,
+    monthlyWithdraw,
+    annualWithdraw,
+    withdrawRate: SAFE_WITHDRAWAL_RATE,
     target,
     months,
     years,
@@ -779,41 +869,67 @@ function calculate() {
 
 function renderHero(r) {
   const yearsEl = document.getElementById('retireYears');
-  const labelEl = document.querySelector('#retireHero .label');
-  const hintEl = document.getElementById('retireHint');
-  yearsEl.classList.remove('ready', 'never');
+  const labelEl = document.getElementById('retireLabel');
+  const row = document.getElementById('retireHeroRow');
+  const legendHint = document.getElementById('legendHint');
+  row.classList.remove('ready', 'never');
+
+  if (r.target <= 0) {
+    labelEl.textContent = '';
+    yearsEl.textContent = '—';
+    if (legendHint) legendHint.textContent = '';
+    return;
+  }
 
   if (r.years === 0) {
-    labelEl.textContent = '';
+    labelEl.textContent = t('youCanRetireNow');
     yearsEl.textContent = t('canRetireNow');
-    yearsEl.classList.add('ready');
+    row.classList.add('ready');
   } else if (!Number.isFinite(r.years)) {
     labelEl.textContent = '';
     yearsEl.textContent = t('neverRetire');
-    yearsEl.classList.add('never');
+    row.classList.add('never');
   } else {
     labelEl.textContent = t('youCanRetire');
     yearsEl.textContent = formatYears(r.years);
   }
-  hintEl.textContent = t('hintTarget', {
-    rate: (Math.round(r.withdrawRate * 1000) / 10).toString().replace('.', prefs.lang === 'sk' ? ',' : '.'),
-    target: money(r.target),
-  });
+  if (legendHint) {
+    legendHint.textContent = t('hintTarget', {
+      monthly: money(r.monthlyWithdraw),
+      target: money(r.target),
+    });
+  }
+}
+
+function formatPct(n) {
+  if (!Number.isFinite(n)) return '—';
+  const v = Math.round(n * 10) / 10;
+  const text = prefs.lang === 'sk' ? String(v).replace('.', ',') : String(v);
+  return `${text} %`;
+}
+
+function moneyWithPct(amount, pct) {
+  if (amount == null || !Number.isFinite(amount)) return '—';
+  if (pct == null || !Number.isFinite(pct)) return money(amount);
+  return `${money(amount)} <span class="kpi-pct">(${formatPct(pct)})</span>`;
 }
 
 function renderKpis(r) {
-  document.getElementById('kpiTarget').textContent = money(r.target);
-  document.getElementById('kpiAnnual').textContent = money(r.annualSpend);
-  document.getElementById('kpiWithdraw').textContent = money(r.target * r.withdrawRate);
-  document.getElementById('kpiGap').textContent = money(r.gap);
-  document.getElementById('kpiContrib').textContent = Number.isFinite(r.years) ? money(r.totalContrib) : '—';
-  document.getElementById('kpiBalance').textContent = Number.isFinite(r.years) ? money(r.retireBalance) : '—';
+  const gapPct = r.target > 0 ? (r.gap / r.target) * 100 : 0;
+  document.getElementById('kpiTarget').textContent = r.target > 0 ? money(r.target) : '—';
+  document.getElementById('kpiGap').innerHTML = r.target > 0 ? moneyWithPct(r.gap, gapPct) : '—';
 }
 
 function renderTable(r) {
   const body = document.getElementById('schedBody');
-  const retireYear = Number.isFinite(r.years) ? Math.ceil(r.years) : null;
-  const rows = r.annual.filter(row => !retireYear || row.year <= Math.max(retireYear, 1));
+  if (r.target <= 0) {
+    body.innerHTML = '';
+    return;
+  }
+  const retireYear = Number.isFinite(r.years)
+    ? (r.years === 0 ? 0 : Math.ceil(r.years))
+    : null;
+  const rows = r.annual.filter(row => retireYear == null || row.year <= retireYear);
   body.innerHTML = rows.map(row => {
     const isRetire = retireYear != null && row.year === retireYear;
     const pct = Math.round(row.progress);
@@ -827,38 +943,73 @@ function renderTable(r) {
   }).join('');
 }
 
-const chartState = { points: [], target: 0, pad: null, bound: false };
+const chartState = {
+  points: [], target: 0, pad: null, bound: false,
+  hoverYear: null, result: null, xAt: null, yAt: null, maxX: 1, maxY: 1,
+};
 
-function drawChart(r) {
+function niceSliderMax(value, step, fallbackMax) {
+  const s = step || 1;
+  const v = Math.max(0, value);
+  if (v <= fallbackMax) return fallbackMax;
+  const padded = v * 1.25;
+  return Math.ceil(padded / s) * s;
+}
+
+function drawChart(r, hoverYear = chartState.hoverYear) {
   const canvas = document.getElementById('pathChart');
+  const box = canvas.parentElement;
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
-  const cssW = canvas.clientWidth || 540;
-  const cssH = 260;
-  canvas.width = cssW * dpr;
-  canvas.height = cssH * dpr;
+  // Measure parent — canvas width attr (540) otherwise locks layout width
+  const cssW = Math.max(320, Math.floor(box.getBoundingClientRect().width));
+  const cssH = 280;
   canvas.style.width = cssW + 'px';
   canvas.style.height = cssH + 'px';
+  canvas.width = Math.floor(cssW * dpr);
+  canvas.height = Math.floor(cssH * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, cssW, cssH);
 
-  const pad = { l: 52, r: 16, t: 16, b: 36 };
+  chartState.result = r;
+  if (!r || !r.points.length || r.target <= 0) return;
+
+  const maxY = Math.max(
+    r.target * 1.08,
+    ...r.points.map(p => Math.max(p.balance, p.contrib || 0)),
+    1,
+  ) * 1.05;
+  const maxX = Math.max(1, r.points[r.points.length - 1].year);
+
+  ctx.font = '11px ' + cssVar('--sans', 'sans-serif');
+  let labelW = 0;
+  for (let i = 0; i <= 4; i++) {
+    const label = money((maxY / 4) * i).replace(/\s/g, '\u00a0');
+    labelW = Math.max(labelW, ctx.measureText(label).width);
+  }
+  const pad = {
+    l: Math.ceil(labelW) + 14,
+    r: 16,
+    t: 22,
+    b: 36,
+  };
+
   chartState.pad = pad;
   chartState.points = r.points;
   chartState.target = r.target;
   chartState.w = cssW;
   chartState.h = cssH;
-
-  const maxY = Math.max(r.target * 1.08, ...r.points.map(p => p.balance), 1) * 1.05;
-  const maxX = Math.max(1, r.points[r.points.length - 1].year);
+  chartState.maxX = maxX;
+  chartState.maxY = maxY;
 
   const xAt = (year) => pad.l + (year / maxX) * (cssW - pad.l - pad.r);
   const yAt = (val) => pad.t + (1 - val / maxY) * (cssH - pad.t - pad.b);
+  chartState.xAt = xAt;
+  chartState.yAt = yAt;
 
   ctx.strokeStyle = cssVar('--chart-grid', '#34373e');
   ctx.lineWidth = 1;
   ctx.fillStyle = cssVar('--chart-axis', '#9aa0a6');
-  ctx.font = '11px ' + cssVar('--sans', 'sans-serif');
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   for (let i = 0; i <= 4; i++) {
@@ -879,6 +1030,14 @@ function drawChart(r) {
     ctx.fillText(String(year), xAt(year), cssH - pad.b + 10);
   }
 
+  // contributions line
+  ctx.beginPath();
+  ctx.moveTo(xAt(0), yAt(r.points[0].contrib));
+  for (const p of r.points) ctx.lineTo(xAt(p.year), yAt(p.contrib));
+  ctx.strokeStyle = cssVar('--contrib', '#8bbc21');
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
   // target line
   const ty = yAt(r.target);
   ctx.setLineDash([6, 5]);
@@ -890,7 +1049,7 @@ function drawChart(r) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // area under portfolio
+  // portfolio area
   const grad = ctx.createLinearGradient(0, pad.t, 0, cssH - pad.b);
   grad.addColorStop(0, 'rgba(99,102,241,0.28)');
   grad.addColorStop(1, 'rgba(99,102,241,0.02)');
@@ -911,23 +1070,55 @@ function drawChart(r) {
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
-  // retirement marker
-  if (Number.isFinite(r.years) && r.years > 0) {
-    const rx = xAt(Math.min(r.years, maxX));
-    const ry = yAt(r.retireBalance);
+  // points
+  const activeYear = hoverYear != null ? hoverYear : null;
+  for (const p of r.points) {
+    const active = activeYear != null && p.year === activeYear;
     ctx.beginPath();
-    ctx.arc(rx, ry, 5, 0, Math.PI * 2);
-    ctx.fillStyle = cssVar('--accent', '#6366f1');
+    ctx.arc(xAt(p.year), yAt(p.balance), active ? 6 : 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = cssVar('--portfolio', '#6366f1');
     ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = active ? 2 : 1.5;
+    ctx.strokeStyle = active ? '#fff' : cssVar('--surface', '#24262b');
     ctx.stroke();
+
+    if (active) {
+      // also highlight contrib point
+      ctx.beginPath();
+      ctx.arc(xAt(p.year), yAt(p.contrib), 5, 0, Math.PI * 2);
+      ctx.fillStyle = cssVar('--contrib', '#8bbc21');
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#fff';
+      ctx.stroke();
+
+      // vertical guide
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = cssVar('--muted', '#9aa0a6');
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(xAt(p.year), pad.t);
+      ctx.lineTo(xAt(p.year), cssH - pad.b);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
   }
 
-  chartState.xAt = xAt;
-  chartState.yAt = yAt;
-  chartState.maxX = maxX;
-  chartState.maxY = maxY;
+  // retirement marker (only if not same as hover or always show slightly)
+  if (Number.isFinite(r.years) && r.years > 0) {
+    const ryYear = Math.min(r.years, maxX);
+    if (activeYear == null || Math.round(ryYear) !== activeYear) {
+      const rx = xAt(ryYear);
+      const ry = yAt(r.retireBalance);
+      ctx.beginPath();
+      ctx.arc(rx, ry, 5, 0, Math.PI * 2);
+      ctx.fillStyle = cssVar('--accent', '#6366f1');
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#fff';
+      ctx.stroke();
+    }
+  }
 }
 
 function bindChartTip() {
@@ -935,28 +1126,38 @@ function bindChartTip() {
   chartState.bound = true;
   const canvas = document.getElementById('pathChart');
   const tip = document.getElementById('chartTip');
+
+  const clearHover = () => {
+    tip.classList.remove('visible');
+    tip.hidden = true;
+    if (chartState.hoverYear != null) {
+      chartState.hoverYear = null;
+      if (chartState.result) drawChart(chartState.result, null);
+    }
+  };
+
   canvas.addEventListener('mousemove', (e) => {
     if (!chartState.points.length) return;
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const { pad, maxX, points, target, w } = chartState;
     if (x < pad.l || x > w - pad.r) {
-      tip.classList.remove('visible');
-      tip.hidden = true;
+      clearHover();
       return;
     }
     const year = Math.round(((x - pad.l) / (w - pad.l - pad.r)) * maxX);
     const p = points.find(pt => pt.year === year) || points[points.length - 1];
-    tip.innerHTML = `<strong>${t('tipYear', { n: p.year })}</strong><br>${t('tipPortfolio')}: ${money(p.balance)}<br>${t('tipTarget')}: ${money(target)}`;
+    if (chartState.hoverYear !== p.year) {
+      chartState.hoverYear = p.year;
+      drawChart(chartState.result, p.year);
+    }
+    tip.innerHTML = `<strong>${t('tipYear', { n: p.year })}</strong><br>${t('tipPortfolio')}: ${money(p.balance)}<br>${t('tipContrib')}: ${money(p.contrib)}<br>${t('tipTarget')}: ${money(target)}`;
     tip.style.left = `${e.clientX - rect.left}px`;
     tip.style.top = `${e.clientY - rect.top}px`;
     tip.hidden = false;
     tip.classList.add('visible');
   });
-  canvas.addEventListener('mouseleave', () => {
-    tip.classList.remove('visible');
-    tip.hidden = true;
-  });
+  canvas.addEventListener('mouseleave', clearHover);
 }
 
 function renderAll(r) {
@@ -975,15 +1176,15 @@ function recompute() {
 function bindField(inputId, sliderId, opts = {}) {
   const input = document.getElementById(inputId);
   const slider = document.getElementById(sliderId);
+  const baseMax = Number(slider.max);
   const syncFromInput = () => {
     let v = Number(input.value);
     if (!Number.isFinite(v)) v = 0;
     if (opts.min != null) v = Math.max(opts.min, v);
-    if (opts.max != null && v > Number(slider.max)) {
-      slider.max = String(Math.ceil(v / (opts.step || 1)) * (opts.step || 1));
-    }
+    const nextMax = niceSliderMax(v, opts.step || Number(slider.step) || 1, baseMax);
+    slider.max = String(nextMax);
     input.value = String(v);
-    slider.value = String(Math.min(Number(slider.max), Math.max(Number(slider.min), v)));
+    slider.value = String(Math.min(nextMax, Math.max(Number(slider.min), v)));
     recompute();
   };
   const syncFromSlider = () => {
@@ -998,11 +1199,12 @@ function bindField(inputId, sliderId, opts = {}) {
 applyTheme();
 applyI18n();
 bindAppDropdown();
+stripCacheBustFromAddress();
+bindCacheBustLinks();
 bindField('portfolio', 'portfolioSlider', { min: 0, step: 1000 });
 bindField('monthlyInvest', 'monthlyInvestSlider', { min: 0, step: 50 });
 bindField('returnRate', 'returnRateSlider', { min: 0, step: 0.1 });
-bindField('monthlySpend', 'monthlySpendSlider', { min: 0, step: 50 });
-bindField('withdrawRate', 'withdrawRateSlider', { min: 1, step: 0.1 });
+bindField('monthlyWithdraw', 'monthlyWithdrawSlider', { min: 0, step: 50 });
 
 document.getElementById('langToggle')?.addEventListener('click', () => {
   setLang(prefs.lang === 'sk' ? 'en' : 'sk');
@@ -1011,6 +1213,10 @@ document.getElementById('themeToggle')?.addEventListener('click', () => {
   setTheme(prefs.theme === 'dark' ? 'light' : 'dark');
 });
 window.addEventListener('resize', () => {
+  if (state.result) drawChart(state.result, chartState.hoverYear);
+});
+
+requestAnimationFrame(() => {
   if (state.result) drawChart(state.result);
 });
 

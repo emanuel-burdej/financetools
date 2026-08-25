@@ -154,31 +154,6 @@ button, input { font: inherit; }
 .app-link-tracker span { color: var(--xtb-red); }
 .app-link-calc span { color: #16a34a; }
 .app-link-retire span { color: #6366f1; }
-.beta-badge {
-  display: inline-flex;
-  align-items: center;
-  margin-left: 6px;
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-size: .625rem;
-  font-weight: 700;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.16);
-  vertical-align: middle;
-  line-height: 1.2;
-}
-.nav-links {
-  display: flex; gap: 2px; flex: 1; overflow-x: auto;
-  scrollbar-width: none;
-  justify-content: center;
-}
-.nav-links a {
-  color: var(--muted); text-decoration: none; font-size: .8125rem;
-  font-weight: 600; padding: 8px 10px; border-radius: 8px; white-space: nowrap;
-}
-.nav-links a:hover { color: var(--ink); background: var(--line-2); }
 .nav-actions { display: flex; gap: 10px; align-items: center; margin-left: auto; flex-shrink: 0; }
 .nav-actions input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .nav-actions .account-wrap {
@@ -455,21 +430,28 @@ html[data-theme="dark"] .hint-tip::after {
 .chart-range-tip {
   position: absolute; z-index: 6; pointer-events: none;
   left: 50%; top: 12px; transform: translateX(-50%);
+  min-width: 210px;
   background: var(--tip-bg); color: var(--tip-fg);
-  border-radius: 10px; padding: 8px 14px; font-size: .8125rem;
+  border-radius: 10px; padding: 10px 12px; font-size: .75rem;
   box-shadow: 0 12px 28px rgba(0,0,0,.35);
-  text-align: center; white-space: nowrap;
+  text-align: left; white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 .chart-range-tip[hidden] { display: none !important; }
-.chart-range-tip .range-delta {
-  font-family: var(--mono); font-weight: 700; font-size: .95rem;
+.chart-range-tip .tip-date { color: var(--faint); font-size: .75rem; margin-bottom: 8px; text-align: center; }
+.chart-range-tip .tip-row {
+  display: flex; justify-content: space-between; gap: 16px; margin-top: 4px;
+  font-size: .8125rem;
 }
-.chart-range-tip .range-delta.pos { color: var(--gain); }
-.chart-range-tip .range-delta.neg { color: var(--loss); }
-.chart-range-tip .range-dates {
-  color: var(--faint); font-size: .72rem; margin-top: 4px;
+.chart-range-tip .tip-row span { color: var(--faint); display: inline-flex; align-items: center; gap: 6px; }
+.chart-range-tip .tip-row i {
+  width: 8px; height: 8px; border-radius: 50%; display: inline-block;
 }
+.chart-range-tip .tip-row strong {
+  font-family: var(--mono); font-weight: 650; font-variant-numeric: tabular-nums;
+}
+.chart-range-tip .tip-row strong.pos { color: var(--gain); }
+.chart-range-tip .tip-row strong.neg { color: var(--loss); }
 .chart-wrap canvas.dragging { cursor: ew-resize; }
 
 .stats-row {
@@ -555,11 +537,16 @@ td.neg { color: var(--loss); }
 .alloc-center .sub { color: var(--faint); font-size: .68rem; margin-top: 2px; }
 .alloc-list { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 .alloc-item {
-  display: grid; grid-template-columns: 10px 1fr auto auto; gap: 10px; align-items: center;
+  display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 10px; align-items: center;
   padding: 10px 12px; font-size: .8125rem; border-bottom: 1px solid var(--line);
 }
 .alloc-item:last-child { border-bottom: 0; }
 .alloc-swatch { width: 10px; height: 10px; border-radius: 3px; }
+.alloc-item .alloc-main {
+  display: flex; align-items: flex-start; gap: 6px; min-width: 0;
+}
+.alloc-item .alloc-text { min-width: 0; flex: 0 1 auto; }
+.alloc-item .inst-row-chev { margin-top: 1px; }
 .alloc-item .name { font-weight: 650; }
 .alloc-item .meta { color: var(--faint); font-size: .75rem; }
 .alloc-item .val { text-align: right; font-family: var(--mono); font-size: .8125rem; font-variant-numeric: tabular-nums; }
@@ -585,10 +572,12 @@ td.neg { color: var(--loss); }
   display: flex; align-items: center; gap: 8px; min-width: 180px;
 }
 .xtb-inst .chev {
-  width: 18px; height: 18px; border-radius: 4px; border: 0; background: transparent;
-  color: var(--muted); cursor: pointer; font-size: .7rem; line-height: 1;
-  flex-shrink: 0;
+  width: 22px; height: 22px; border-radius: 6px; border: 0; background: transparent;
+  color: var(--muted); cursor: pointer; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: transform .15s ease;
 }
+.xtb-inst .chev svg { display: block; }
 .xtb-parent.collapsed .chev { transform: rotate(-90deg); }
 .xtb-child[hidden] { display: none; }
 .badge-buy-xtb {
@@ -760,7 +749,6 @@ html[data-theme="dark"] .pct-pill.pos { color: #0b1f14; }
 }
 @media (max-width: 720px) {
   .topnav-inner, .app { padding-left: 16px; padding-right: 16px; }
-  .nav-links { display: none; }
   .stats-row, .split { grid-template-columns: 1fr; }
 }
 .holdings-table-wrap tbody tr.inst-row-clickable { cursor: pointer; }
@@ -776,9 +764,8 @@ html[data-theme="dark"] .pct-pill.pos { color: #0b1f14; }
 .inst-row-clickable:hover .inst-row-chev {
   color: var(--blue); border-color: var(--line); background: var(--surface);
 }
-.sec-cell { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.sec-cell { display: flex; align-items: flex-start; gap: 6px; }
 .alloc-item.inst-row-clickable { align-items: center; }
-.alloc-item .inst-row-chev { margin-left: 0; }
 
 .inst-modal[hidden] { display: none !important; }
 .inst-modal {
@@ -864,16 +851,10 @@ html[data-theme="dark"] .inst-modal-backdrop { background: rgba(0, 0, 0, 0.62); 
           <i class="chev" aria-hidden="true"></i>
         </button>
         <div class="app-dd-menu" role="listbox">
-          <a href="investmentCalculator.html?v=20260823p" class="app-link-calc">Invest <span>Calculator</span></a>
-          <a href="retireCalculator.html?v=20260823p" class="app-link-retire">Retire <span>Calculator</span><span class="beta-badge">beta</span></a>
+          <a href="investmentCalculator.html" class="app-link-calc">Invest <span>Calculator</span></a>
+          <a href="retireCalculator.html" class="app-link-retire">Retire <span>Calculator</span></a>
         </div>
       </div>
-      <nav class="nav-links" aria-label="Sekcie" data-i18n-aria="navSections">
-        <a href="#performance" data-i18n="navPerformance">Výkonnosť</a>
-        <a href="#holdings" data-i18n="navHoldings">Inštrumenty</a>
-        <a href="#allocation" data-i18n="navAllocation">Alokácia</a>
-        <a href="#transactions" data-i18n="navPositions">Pozície</a>
-      </nav>
       <div class="nav-actions">
         <div class="account-wrap">
           <div class="account-dd" id="accountDd">
@@ -998,7 +979,7 @@ html[data-theme="dark"] .inst-modal-backdrop { background: rgba(0, 0, 0, 0.62); 
 
     <section class="split">
       <article class="panel" id="holdings" style="margin:0">
-        <div class="panel-h"><h2 data-i18n="holdings">Inštrumenty</h2><span class="hint" id="holdingsCount"></span></div>
+        <div class="panel-h"><h2 data-i18n="holdings">Inštrumenty</h2></div>
         <div class="holdings-table-wrap">
           <table>
             <thead>
@@ -1016,7 +997,7 @@ html[data-theme="dark"] .inst-modal-backdrop { background: rgba(0, 0, 0, 0.62); 
       </article>
 
       <article class="panel" id="allocation" style="margin:0">
-        <div class="panel-h"><h2 data-i18n="allocation">Alokácia</h2><span class="hint" data-i18n="byTicker">podľa tickeru</span></div>
+        <div class="panel-h"><h2 data-i18n="allocation">Alokácia</h2></div>
         <div class="alloc-layout">
           <div class="alloc-chart-box">
             <canvas id="allocChart" width="132" height="132" data-i18n-aria="allocAria" aria-label="Alokácia"></canvas>
@@ -1030,12 +1011,11 @@ html[data-theme="dark"] .inst-modal-backdrop { background: rgba(0, 0, 0, 0.62); 
     <section class="panel" id="transactions">
       <div class="panel-h">
         <h2 data-i18n="positionsTx">Pozície &amp; transakcie</h2>
-        <span class="hint" id="tableCount"></span>
       </div>
       <div class="tabs" role="tablist">
         <button type="button" class="tab active" data-tab="open" role="tab" data-i18n="tabOpen">Otvorené pozície</button>
-        <button type="button" class="tab" data-tab="cash" role="tab" data-i18n="tabCash">Hotovosť</button>
-        <button type="button" class="tab" data-tab="closed" role="tab" data-i18n="tabClosed">Uzavreté</button>
+        <button type="button" class="tab" data-tab="cash" role="tab" data-i18n="tabCash">Peňažné operácie</button>
+        <button type="button" class="tab" data-tab="closed" role="tab" data-i18n="tabClosed">Uzavreté pozície</button>
       </div>
       <div class="table-scroll">
         <table id="txTable" class="xtb-table">
@@ -1406,6 +1386,13 @@ function productKey(name) {
   return normalizeProductName(name);
 }
 
+function productLabel(name) {
+  const key = productKey(name);
+  if (key === 'My Trades') return t('productMyTrades');
+  if (key === 'Investment Plans') return t('productInvestmentPlans');
+  return key || name;
+}
+
 function isInvestmentPlanProduct(product) {
   return productKey(product) === 'Investment Plans';
 }
@@ -1589,6 +1576,17 @@ function computeModel(data) {
   let instruments = [...byTicker.values()].sort((a, b) => (b.value || 0) - (a.value || 0));
   const totalInstValue = instruments.reduce((s, i) => s + (i.value || 0), 0) || portfolioValue || 1;
   instruments = instruments.map(i => ({ ...i, weight: ((i.value || 0) / totalInstValue) * 100 }));
+  if (instruments.length) {
+    const rounded = instruments.map((i, idx) => (
+      idx === instruments.length - 1 ? i : { ...i, weight: Math.round(i.weight * 10) / 10 }
+    ));
+    const headSum = rounded.slice(0, -1).reduce((s, i) => s + i.weight, 0);
+    rounded[rounded.length - 1] = {
+      ...rounded[rounded.length - 1],
+      weight: Math.round((100 - headSum) * 10) / 10,
+    };
+    instruments = rounded;
+  }
 
   // Timeline
   const events = [];
@@ -1702,10 +1700,26 @@ const I18N = {
     allocAria: 'Alokácia',
     positionsTx: 'Pozície & transakcie',
     tabOpen: 'Otvorené pozície',
-    tabCash: 'Hotovosť',
-    tabClosed: 'Uzavreté',
+    tabCash: 'Peňažné operácie',
+    tabClosed: 'Uzavreté pozície',
     tipValue: 'Hodnota',
     tipDeposits: 'Čisté vklady',
+    tipInvestments: 'Investície',
+    tipInvestmentsCash: 'Investície + hotovosť',
+    productMyTrades: 'Moje obchody',
+    productInvestmentPlans: 'Investičné plány',
+    filterPlaceholder: 'Filter',
+    filterAll: 'Všetky',
+    filterClear: 'Zrušiť',
+    filterNone: 'Žiadne hodnoty',
+    filterSearch: 'Hľadať…',
+    datePreset1d: 'Posledný deň',
+    datePreset1w: 'Posledný týždeň',
+    datePreset1m: 'Posledný mesiac',
+    datePreset1y: 'Posledný rok',
+    datePreset5y: 'Posledných 5 rokov',
+    datePresetMax: 'Všetko',
+    dateValuesTitle: 'Konkrétne dátumy',
     colInstrumentPos: 'Inštrument / pozícia',
     colVolume: 'Objem',
     colCurrentPrice: 'Aktuálna cena',
@@ -1804,10 +1818,26 @@ const I18N = {
     allocAria: 'Allocation',
     positionsTx: 'Positions & transactions',
     tabOpen: 'Open positions',
-    tabCash: 'Cash',
-    tabClosed: 'Closed',
+    tabCash: 'Cash operations',
+    tabClosed: 'Closed positions',
     tipValue: 'Value',
     tipDeposits: 'Net deposits',
+    tipInvestments: 'Investments',
+    tipInvestmentsCash: 'Investments + cash',
+    productMyTrades: 'My Trades',
+    productInvestmentPlans: 'Investment Plans',
+    filterPlaceholder: 'Filter',
+    filterAll: 'All',
+    filterClear: 'Clear',
+    filterNone: 'No values',
+    filterSearch: 'Search…',
+    datePreset1d: 'Last day',
+    datePreset1w: 'Last week',
+    datePreset1m: 'Last month',
+    datePreset1y: 'Last year',
+    datePreset5y: 'Last 5 years',
+    datePresetMax: 'All',
+    dateValuesTitle: 'Specific dates',
     colInstrumentPos: 'Instrument / position',
     colVolume: 'Volume',
     colCurrentPrice: 'Current price',
@@ -2009,7 +2039,7 @@ function renderProductToggles() {
     btn.setAttribute('role', 'menuitemcheckbox');
     btn.setAttribute('aria-checked', on ? 'true' : 'false');
     btn.innerHTML = `<span class="product-name"></span><span class="product-switch" aria-hidden="true"></span>`;
-    btn.querySelector('.product-name').textContent = name;
+    btn.querySelector('.product-name').textContent = productLabel(name);
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       setProductEnabled(name, !isProductEnabled(name));
@@ -2072,6 +2102,27 @@ function bindAppDropdown() {
   document.addEventListener('click', close);
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') close();
+  });
+}
+
+const APP_PAGE_RE = /(?:^|\/)(index|xtbTracker|investmentCalculator|retireCalculator)\.html(?:$|\?|#)/;
+
+function stripCacheBustFromAddress() {
+  const url = new URL(location.href);
+  if (!url.searchParams.has('v')) return;
+  url.searchParams.delete('v');
+  const q = url.searchParams.toString();
+  history.replaceState(null, '', url.pathname + (q ? `?${q}` : '') + url.hash);
+}
+
+function bindCacheBustLinks() {
+  document.querySelectorAll('a[href]').forEach((a) => {
+    const raw = a.getAttribute('href');
+    if (!raw || !APP_PAGE_RE.test(raw)) return;
+    a.addEventListener('click', () => {
+      const base = (a.getAttribute('href') || raw).split('?')[0].split('#')[0];
+      a.setAttribute('href', `${base}?v=${Date.now()}`);
+    });
   });
 }
 
@@ -2287,17 +2338,22 @@ function drawEquityChart(canvas, series, ccy, hoverIdx = -1) {
     }
     ctx.setLineDash([]);
 
-    // dots on equity
+    // dots on equity + deposits (same as hover)
     const green = cssVar('--chart-green', '#22c55e');
+    const gray = cssVar('--chart-contrib', '#94a3b8');
     const ring = prefs.theme === 'dark' ? '#1a1b1e' : '#fff';
-    for (const s of [s0, s1]) {
+    const drawDot = (x, y, color) => {
       ctx.beginPath();
-      ctx.arc(xAt(s.t), yAt(s.equity), 4.5, 0, Math.PI * 2);
-      ctx.fillStyle = green;
+      ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = color;
       ctx.fill();
       ctx.lineWidth = 2;
       ctx.strokeStyle = ring;
       ctx.stroke();
+    };
+    for (const s of [s0, s1]) {
+      drawDot(xAt(s.t), yAt(s.invested), gray);
+      drawDot(xAt(s.t), yAt(s.equity), green);
     }
   }
 }
@@ -2349,13 +2405,16 @@ function updateRangeTip() {
   const i1 = Math.max(df, dt);
   const a = series[i0];
   const b = series[i1];
-  const delta = b.equity - a.equity;
-  const pctChg = a.equity !== 0 ? (delta / a.equity) * 100 : null;
-  const cls = clsMoney(delta);
-  const arrow = delta > 0 ? ' ↑' : delta < 0 ? ' ↓' : '';
+  const ccy = equityChartState.ccy;
+  const investments = (b.equity - b.invested) - (a.equity - a.invested);
+  const investmentsCash = b.equity - a.equity;
+  const pctInv = a.invested ? (investments / a.invested) * 100 : null;
+  const pctCash = a.equity ? (investmentsCash / a.equity) * 100 : null;
+  const fmtPct = (p) => (p == null || !Number.isFinite(p) ? '' : ` (${num2(Math.abs(p))} %)`);
   tip.innerHTML = `
-    <div class="range-delta ${cls}">${signedMoney(delta, equityChartState.ccy)}${pctChg == null ? '' : ' (' + num2(Math.abs(pctChg)) + ' %)'}${arrow}</div>
-    <div class="range-dates">${fmtDay(a.t)} – ${fmtDay(b.t)}</div>
+    <div class="tip-date">${fmtDay(a.t)} – ${fmtDay(b.t)}</div>
+    <div class="tip-row"><span><i style="background:${cssVar('--chart-green','#22c55e')}"></i>${t('tipInvestments')}</span><strong class="${clsMoney(investments)}">${signedMoney(investments, ccy)}${fmtPct(pctInv)}</strong></div>
+    <div class="tip-row"><span><i style="background:${cssVar('--chart-contrib','#94a3b8')}"></i>${t('tipInvestmentsCash')}</span><strong class="${clsMoney(investmentsCash)}">${signedMoney(investmentsCash, ccy)}${fmtPct(pctCash)}</strong></div>
   `;
   tip.hidden = false;
   const mid = (geom.xAt(a.t) + geom.xAt(b.t)) / 2;
@@ -2807,6 +2866,8 @@ function rowsForTab(model, tab) {
   return [];
 }
 
+const OPEN_CHEVRON_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>';
+
 function renderOpenPositionsTable(model) {
   const head = document.getElementById('txHead');
   const body = document.getElementById('txBody');
@@ -2837,9 +2898,7 @@ function renderOpenPositionsTable(model) {
     return 0;
   };
 
-  let groups = openPositionGroups(model);
-  // sort groups by aggregate field
-  groups = [...groups].sort((ga, gb) => {
+  let groups = [...openPositionGroups(model)].sort((ga, gb) => {
     const a = ga.aggregate || {};
     const b = gb.aggregate || {};
     const key = state.openSortKey === 'instrument' ? 'instrument' : state.openSortKey;
@@ -2859,7 +2918,7 @@ function renderOpenPositionsTable(model) {
     const pctV = agg ? agg.netProfitPct : null;
     const pnl = agg ? agg.netProfit : g.legs.reduce((s, x) => s + (x.netProfit || 0), 0);
     const key = g.ticker;
-    const collapsed = !!state.collapsedGroups[key];
+    const collapsed = state.collapsedGroups[key] !== false;
     const pctCls = clsMoney(pctV);
     const pnlCls = clsMoney(pnl);
 
@@ -2874,7 +2933,7 @@ function renderOpenPositionsTable(model) {
     htmlRows += `<tr class="xtb-parent${collapsed ? ' collapsed' : ''}" data-group-key="${escapeHtml(key)}">
       <td>
         <div class="xtb-inst">
-          <button type="button" class="chev" data-toggle="${escapeHtml(key)}" aria-label="${t('expand')}">${collapsed ? '▸' : '▾'}</button>
+          <button type="button" class="chev" data-toggle="${escapeHtml(key)}" aria-label="${t('expand')}">${OPEN_CHEVRON_SVG}</button>
           <div>
             <div>${escapeHtml(g.name || g.ticker)}</div>
             <div class="sec-ticker">${escapeHtml(g.ticker)}${legs.length ? ' · ' + t('positionsOf', { n: legs.length }) : ''}</div>
@@ -2907,10 +2966,6 @@ function renderOpenPositionsTable(model) {
   });
 
   body.innerHTML = htmlRows || `<tr><td colspan="7">${t('noOpen')}</td></tr>`;
-  document.getElementById('tableCount').textContent = t('instrumentsOf', {
-    i: groups.length,
-    p: groups.reduce((s, g) => s + g.legs.length, 0),
-  });
 
   head.querySelectorAll('th[data-open-key]').forEach(th => {
     th.addEventListener('click', () => {
@@ -2925,7 +2980,7 @@ function renderOpenPositionsTable(model) {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const key = btn.getAttribute('data-toggle');
-      state.collapsedGroups[key] = !state.collapsedGroups[key];
+      state.collapsedGroups[key] = state.collapsedGroups[key] === false;
       renderTable();
     });
   });
@@ -2933,7 +2988,7 @@ function renderOpenPositionsTable(model) {
     tr.addEventListener('click', (e) => {
       if (e.target.closest('[data-toggle]')) return;
       const key = tr.getAttribute('data-group-key');
-      state.collapsedGroups[key] = !state.collapsedGroups[key];
+      state.collapsedGroups[key] = state.collapsedGroups[key] === false;
       renderTable();
     });
   });
@@ -2941,6 +2996,7 @@ function renderOpenPositionsTable(model) {
 
 function renderTable() {
   const model = state.model;
+  if (!model) return;
   if (state.tab === 'open') {
     renderOpenPositionsTable(model);
     return;
@@ -2982,7 +3038,6 @@ function renderTable() {
     rows = [...rows].sort((a, b) => (b.date ? new Date(b.date).getTime() : 0) - (a.date ? new Date(a.date).getTime() : 0));
   }
 
-  document.getElementById('tableCount').textContent = t('rowsOf', { n: rows.length });
   body.innerHTML = rows.map(r => {
     const pnlCls = clsMoney(r.pnl);
     return `<tr>
@@ -2994,7 +3049,7 @@ function renderTable() {
       <td class="num">${r.fee == null ? '—' : money(r.fee, model.ccy)}</td>
       <td class="num ${pnlCls}">${money(r.pnl, model.ccy)}</td>
     </tr>`;
-  }).join('');
+  }).join('') || `<tr><td colspan="7">${t('noData')}</td></tr>`;
 
   head.querySelectorAll('th[data-key]').forEach(th => {
     th.addEventListener('click', () => {
@@ -3382,7 +3437,9 @@ function renderInstruments(model) {
   const body = document.getElementById('holdingsBody');
   const list = document.getElementById('instrumentList');
   const rows = model.instruments;
-  document.getElementById('holdingsCount').textContent = rows.length === 1 ? t('holdingOne') : t('holdingsN', { n: rows.length });
+  const fundChev = `<span class="inst-row-chev" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </span>`;
 
   body.innerHTML = rows.map((i, idx) => {
     const pl = i.netProfit;
@@ -3395,9 +3452,7 @@ function renderInstruments(model) {
             <div class="sec-name">${escapeHtml(i.instrument || i.ticker || '—')}</div>
             <div class="sec-ticker">${escapeHtml([i.ticker, i.category].filter(Boolean).join(' · '))}</div>
           </div>
-          ${isFund ? `<span class="inst-row-chev" aria-hidden="true">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </span>` : ''}
+          ${isFund ? fundChev : ''}
         </div>
       </td>
       <td class="num">${num(i.volume, 4)}</td>
@@ -3418,14 +3473,14 @@ function renderInstruments(model) {
     return `
     <div class="alloc-item" data-inst-idx="${idx}" ${isFund ? 'data-fund="1"' : ''}>
       <span class="alloc-swatch" style="background:${colors[idx % colors.length]}"></span>
-      <div>
-        <div class="name">${escapeHtml(i.ticker || i.instrument || '—')}</div>
-        <div class="meta">${escapeHtml([i.instrument, i.category].filter(Boolean).join(' · '))}</div>
+      <div class="alloc-main">
+        <div class="alloc-text">
+          <div class="name">${escapeHtml(i.instrument || i.ticker || '—')}</div>
+          <div class="meta">${escapeHtml([i.ticker, i.category].filter(Boolean).join(' · '))}</div>
+        </div>
+        ${isFund ? fundChev : ''}
       </div>
       <div class="val">${num(i.weight, 1)} %<div class="meta">${money(i.value, model.ccy)}</div></div>
-      ${isFund ? `<span class="inst-row-chev" aria-hidden="true">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </span>` : '<span></span>'}
     </div>`;
   }).join('') || `<div class="meta" style="padding:12px">${t('noData')}</div>`;
   markInstrumentRowsClickable();
@@ -3526,6 +3581,8 @@ async function init() {
   applyStaticI18n();
   showWelcome(true);
   bindAppDropdown();
+  stripCacheBustFromAddress();
+  bindCacheBustLinks();
   bindAccountDropdown();
   renderProductToggles();
   bindInstModal();
@@ -3543,20 +3600,6 @@ async function init() {
     }
   });
   bindFileDrop();
-  document.querySelectorAll('.nav-links a[href^="#"]').forEach(a => {
-    a.addEventListener('click', (e) => {
-      const id = a.getAttribute('href').slice(1);
-      e.preventDefault();
-      if (id === 'performance') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return;
-      }
-      const el = document.getElementById(id);
-      if (!el) return;
-      const top = el.getBoundingClientRect().top + window.scrollY - 64;
-      window.scrollTo({ top, behavior: 'smooth' });
-    });
-  });
   document.getElementById('fileInput').addEventListener('change', e => {
     const f = e.target.files && e.target.files[0];
     if (f) onFile(f);

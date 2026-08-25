@@ -10,6 +10,7 @@
 :root {
   --bg: #fafbfc;
   --surface: #ffffff;
+  --elevated: #ffffff;
   --ink: #111827;
   --muted: #6b7280;
   --line: #e5e7eb;
@@ -22,16 +23,15 @@
   --retire-soft: rgba(99, 102, 241, 0.12);
   --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --focus: 0 0 0 3px rgba(37, 99, 235, 0.28);
-  --shadow: 0 8px 28px rgba(16, 24, 40, 0.08);
-  --glow-red: rgba(227, 6, 19, 0.12);
-  --glow-green: rgba(22, 163, 74, 0.12);
-  --glow-retire: rgba(99, 102, 241, 0.14);
+  --nav-bg: rgba(255,255,255,.92);
+  --shadow: 0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
 }
 
 html[data-theme="dark"] {
   color-scheme: dark;
   --bg: #1a1b1e;
   --surface: #24262b;
+  --elevated: #32353c;
   --ink: #f5f6f7;
   --muted: #9aa0a6;
   --line: #34373e;
@@ -40,10 +40,8 @@ html[data-theme="dark"] {
   --green-soft: rgba(22, 163, 74, 0.16);
   --retire-soft: rgba(129, 140, 248, 0.16);
   --focus: 0 0 0 3px rgba(91, 141, 239, 0.35);
-  --shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
-  --glow-red: rgba(227, 6, 19, 0.16);
-  --glow-green: rgba(22, 163, 74, 0.14);
-  --glow-retire: rgba(129, 140, 248, 0.16);
+  --nav-bg: rgba(26, 27, 30, .92);
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.25);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -53,212 +51,203 @@ body {
   font-family: var(--sans);
   color: var(--ink);
   background: var(--bg);
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
 }
 button { font: inherit; cursor: pointer; }
 :focus-visible { outline: none; box-shadow: var(--focus); }
 
-.page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
+.shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--nav-bg);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
 }
-.page::before,
-.page::after {
-  content: "";
-  position: absolute;
-  width: 340px;
-  height: 340px;
-  border-radius: 50%;
-  pointer-events: none;
-  filter: blur(90px);
-  opacity: .7;
+.topnav-inner {
+  max-width: 720px; margin: 0 auto;
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 20px;
+  min-height: 56px;
 }
-.page::before {
-  top: -80px;
-  left: 15%;
-  background: var(--glow-red);
+.app-dd { position: relative; flex-shrink: 0; }
+.app-dd-btn {
+  appearance: none; border: 0; background: transparent;
+  font: inherit; font-weight: 700; font-size: .95rem; letter-spacing: -.02em;
+  color: var(--ink); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 8px; border-radius: 8px; white-space: nowrap;
 }
-.page::after {
-  top: 40px;
-  right: 10%;
-  background: var(--glow-green);
+.app-dd-btn:hover { background: var(--line-2); }
+.app-dd-btn .chev {
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--muted);
+  margin-top: 2px;
 }
-
-.topbar {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 16px 20px;
-}
-.pref-btn {
-  appearance: none;
+.app-dd.open .app-dd-btn .chev { transform: rotate(180deg); }
+.app-dd-menu {
+  display: none;
+  position: absolute; top: calc(100% + 12px); left: 0; z-index: 110;
+  min-width: 220px;
+  background: var(--elevated);
   border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--muted);
-  border-radius: 8px;
-  min-width: 40px;
-  height: 34px;
-  padding: 0 10px;
-  font-size: .75rem;
-  font-weight: 700;
+  border-radius: 10px;
+  box-shadow: 0 14px 36px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06);
+  padding: 6px;
 }
-.pref-btn:hover { background: var(--line-2); color: var(--ink); }
+.app-dd.open .app-dd-menu { display: block; }
+.app-dd-menu a {
+  display: block;
+  color: var(--ink); text-decoration: none;
+  font-size: .8125rem; font-weight: 600;
+  padding: 9px 12px; border-radius: 8px; white-space: nowrap;
+}
+.app-dd-menu a:hover { background: var(--line-2); }
+.app-link-tracker span { color: var(--xtb-red); }
+.app-link-calc span { color: var(--green); }
+.app-link-retire span { color: var(--retire); }
 
-.main {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
-  padding: 48px 20px 40px;
+.nav-spacer { flex: 1; }
+.pref-row { display: flex; gap: 8px; align-items: center; }
+.pref-btn {
+  appearance: none; border: 1px solid var(--line); background: var(--surface);
+  color: var(--muted); border-radius: 8px; padding: 6px 10px;
+  cursor: pointer; font-weight: 700; font-size: .75rem;
+  letter-spacing: .03em; line-height: 1; min-width: 40px;
 }
+.pref-btn:hover { color: var(--ink); background: var(--line-2); border-color: var(--muted); }
+.pref-btn.theme-btn {
+  min-width: 40px; font-size: 1rem; padding: 6px 10px;
+  color: var(--ink); border-color: var(--line); background: var(--line-2);
+}
+.pref-btn.theme-btn:hover { border-color: var(--ink); background: var(--surface); }
 
-.title {
-  margin: 0;
-  font-size: clamp(1.65rem, 4vw, 2rem);
-  font-weight: 750;
-  letter-spacing: -.03em;
-  text-align: center;
-}
-.subtitle {
-  margin: 0 0 20px;
-  max-width: 420px;
-  font-size: .9375rem;
-  color: var(--muted);
-  text-align: center;
-  line-height: 1.45;
+.app {
+  max-width: 720px; margin: 0 auto; width: 100%;
+  padding: 28px 24px 48px;
 }
 
 .choices {
-  width: min(960px, 100%);
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .choice {
-  position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 20px;
-  min-height: 200px;
-  padding: 32px 24px;
-  border-radius: 16px;
+  gap: 16px;
+  padding: 18px 18px;
+  border-radius: 12px;
   border: 1px solid var(--line);
   background: var(--surface);
   box-shadow: var(--shadow);
   text-decoration: none;
   color: var(--ink);
-  overflow: hidden;
-  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  transition: background .12s ease, border-color .12s ease;
 }
-.choice::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 3px;
-}
-.choice-tracker::before { background: var(--xtb-red); }
-.choice-calc::before { background: var(--green); }
-.choice-retire::before { background: var(--retire); }
-
-.choice:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
-}
-.choice:focus-visible { transform: translateY(-3px); }
-.choice-tracker:hover { border-color: rgba(227, 6, 19, 0.45); }
-.choice-calc:hover { border-color: rgba(22, 163, 74, 0.45); }
-.choice-retire:hover { border-color: rgba(99, 102, 241, 0.45); }
+.choice:hover { background: var(--line-2); border-color: var(--muted); }
+.choice:hover .choice-arrow { color: var(--ink); }
 
 .choice-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
 }
-.choice-tracker .choice-icon {
-  background: var(--xtb-red-soft);
-  color: var(--xtb-red);
-}
-.choice-calc .choice-icon {
-  background: var(--green-soft);
-  color: var(--green);
-}
-.choice-retire .choice-icon {
-  background: var(--retire-soft);
-  color: var(--retire);
-}
+.choice-tracker .choice-icon { background: var(--xtb-red-soft); color: var(--xtb-red); }
+.choice-calc .choice-icon { background: var(--green-soft); color: var(--green); }
+.choice-retire .choice-icon { background: var(--retire-soft); color: var(--retire); }
 
+.choice-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
 .choice-name {
-  font-size: clamp(1.15rem, 2.6vw, 1.4rem);
+  font-size: 1.0625rem;
   font-weight: 700;
   letter-spacing: -.02em;
-  text-align: center;
-  line-height: 1.2;
-}
-.choice-tracker .choice-name > span { color: var(--xtb-red); }
-.choice-calc .choice-name > span { color: var(--green); }
-.choice-retire .choice-name > span { color: var(--retire); }
-.beta-badge {
-  display: inline-flex;
+  line-height: 1.25;
+  display: flex;
   align-items: center;
-  margin-left: 6px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: .625rem;
-  font-weight: 700;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--retire);
-  background: var(--retire-soft);
-  vertical-align: middle;
-  line-height: 1.2;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.choice-tracker .choice-name > span.accent { color: var(--xtb-red); }
+.choice-calc .choice-name > span.accent { color: var(--green); }
+.choice-retire .choice-name > span.accent { color: var(--retire); }
+.choice-desc {
+  font-size: .875rem;
+  color: var(--muted);
+  line-height: 1.35;
 }
 
-@media (max-width: 800px) {
-  .main { padding-top: 28px; }
-  .choices { grid-template-columns: 1fr; }
-  .choice { min-height: 150px; }
+.choice-arrow {
+  flex-shrink: 0;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+}
+
+@media (max-width: 720px) {
+  .topnav-inner, .app { padding-left: 16px; padding-right: 16px; }
 }
 </style>
 </head>
 <body>
-<div class="page">
-  <header class="topbar">
-    <button type="button" class="pref-btn" id="langToggle" title="Language">SK</button>
-    <button type="button" class="pref-btn" id="themeToggle" title="Dark mode" aria-label="Theme">☾</button>
+<div class="shell">
+  <header class="topnav">
+    <div class="topnav-inner">
+      <div class="app-dd" id="appDd">
+        <button type="button" class="app-dd-btn" id="appDdBtn" aria-haspopup="listbox" aria-expanded="false">
+          Finance Tools
+          <i class="chev" aria-hidden="true"></i>
+        </button>
+        <div class="app-dd-menu" role="listbox">
+          <a href="xtbTracker.html" class="app-link-tracker">XTB <span>Tracker</span></a>
+          <a href="investmentCalculator.html" class="app-link-calc">Invest <span>Calculator</span></a>
+          <a href="retireCalculator.html" class="app-link-retire">Retire <span>Calculator</span></a>
+        </div>
+      </div>
+      <div class="nav-spacer"></div>
+      <div class="pref-row">
+        <button type="button" class="pref-btn" id="langToggle" title="Language">SK</button>
+        <button type="button" class="pref-btn theme-btn" id="themeToggle" title="Dark mode" aria-label="Theme">☾</button>
+      </div>
+    </div>
   </header>
 
-  <main class="main">
-    <h1 class="title">Finance Tools</h1>
-    <p class="subtitle" data-i18n="subtitle">Offline tools for XTB portfolio tracking and investment planning.</p>
+  <main class="app">
     <nav class="choices" aria-label="Apps">
-      <a class="choice choice-tracker" href="xtbTracker.html?v=20260823p">
+      <a class="choice choice-tracker" href="xtbTracker.html">
         <div class="choice-icon" aria-hidden="true">
-          <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
             <path d="M6 22V8h2.8v10.4H26V22H6z" fill="currentColor" opacity=".25"/>
             <path d="M8 20l5-6 3.5 3.5L23.5 9.5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx="23.5" cy="9.5" r="2.2" fill="currentColor"/>
           </svg>
         </div>
-        <span class="choice-name">XTB <span>Tracker</span></span>
+        <div class="choice-body">
+          <div class="choice-name">XTB <span class="accent">Tracker</span></div>
+          <div class="choice-desc" data-i18n="descTracker">Import Excel výpisu a prehľad portfólia, P/L a pozícií.</div>
+        </div>
+        <span class="choice-arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
       </a>
 
-      <a class="choice choice-calc" href="investmentCalculator.html?v=20260823p">
+      <a class="choice choice-calc" href="investmentCalculator.html">
         <div class="choice-icon" aria-hidden="true">
-          <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
             <rect x="7" y="5" width="18" height="22" rx="2.5" stroke="currentColor" stroke-width="2"/>
             <rect x="10" y="8" width="12" height="4" rx="1" fill="currentColor"/>
             <circle cx="12" cy="16.5" r="1.3" fill="currentColor"/>
@@ -269,18 +258,41 @@ button { font: inherit; cursor: pointer; }
             <rect x="15" y="23.2" width="6" height="2.6" rx="1" fill="currentColor"/>
           </svg>
         </div>
-        <span class="choice-name">Invest <span>Calculator</span></span>
+        <div class="choice-body">
+          <div class="choice-name">Invest <span class="accent">Calculator</span></div>
+          <div class="choice-desc" data-i18n="descCalc">Simulácia pravidelných vkladov, výnosu a zhodnotenia.</div>
+        </div>
+        <span class="choice-arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
       </a>
 
-      <a class="choice choice-retire" href="retireCalculator.html?v=20260823p">
+      <a class="choice choice-retire" href="retireCalculator.html">
         <div class="choice-icon" aria-hidden="true">
-          <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
-            <path d="M7 22.5V11h2.4v8.8H24V22.5H7z" fill="currentColor" opacity=".22"/>
-            <path d="M8.5 20.5l5.2-6.2 3.2 3.1L23 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="23" cy="10" r="2.4" fill="currentColor"/>
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+            <rect x="7" y="5" width="18" height="22" rx="2.5" stroke="currentColor" stroke-width="2"/>
+            <rect x="10" y="8" width="12" height="4" rx="1" fill="currentColor"/>
+            <circle cx="12" cy="16.5" r="1.3" fill="currentColor"/>
+            <circle cx="16" cy="16.5" r="1.3" fill="currentColor"/>
+            <circle cx="20" cy="16.5" r="1.3" fill="currentColor"/>
+            <circle cx="12" cy="20.5" r="1.3" fill="currentColor"/>
+            <circle cx="16" cy="20.5" r="1.3" fill="currentColor"/>
+            <rect x="15" y="23.2" width="6" height="2.6" rx="1" fill="currentColor"/>
           </svg>
         </div>
-        <span class="choice-name">Retire <span>Calculator</span><span class="beta-badge">beta</span></span>
+        <div class="choice-body">
+          <div class="choice-name">
+            Retire <span class="accent">Calculator</span>
+          </div>
+          <div class="choice-desc" data-i18n="descRetire">Odhad cieľového kapitálu a cesty k dôchodku.</div>
+        </div>
+        <span class="choice-arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
       </a>
     </nav>
   </main>
@@ -289,12 +301,16 @@ button { font: inherit; cursor: pointer; }
 <script>
 const I18N = {
   sk: {
-    subtitle: 'Offline nástroje na sledovanie XTB portfólia a plánovanie investícií.',
+    descTracker: 'Import Excel výpisu a prehľad portfólia, P/L a pozícií.',
+    descCalc: 'Simulácia pravidelných vkladov, výnosu a zhodnotenia.',
+    descRetire: 'Odhad cieľového kapitálu a cesty k dôchodku.',
     themeToDark: 'Tmavý režim',
     themeToLight: 'Svetlý režim',
   },
   en: {
-    subtitle: 'Offline tools for XTB portfolio tracking and investment planning.',
+    descTracker: 'Import an Excel statement and review portfolio, P/L and positions.',
+    descCalc: 'Simulate regular contributions, returns and growth.',
+    descRetire: 'Estimate target capital and your path to retirement.',
     themeToDark: 'Dark mode',
     themeToLight: 'Light mode',
   },
@@ -332,6 +348,47 @@ function applyPrefs() {
   if (meta) meta.setAttribute('content', prefs.theme === 'dark' ? 'dark' : 'light');
 }
 
+function bindAppDropdown() {
+  const dd = document.getElementById('appDd');
+  const btn = document.getElementById('appDdBtn');
+  if (!dd || !btn) return;
+  const close = () => {
+    dd.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  };
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = !dd.classList.contains('open');
+    dd.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+}
+
+const APP_PAGE_RE = /(?:^|\/)(index|xtbTracker|investmentCalculator|retireCalculator)\.html(?:$|\?|#)/;
+
+function stripCacheBustFromAddress() {
+  const url = new URL(location.href);
+  if (!url.searchParams.has('v')) return;
+  url.searchParams.delete('v');
+  const q = url.searchParams.toString();
+  history.replaceState(null, '', url.pathname + (q ? `?${q}` : '') + url.hash);
+}
+
+function bindCacheBustLinks() {
+  document.querySelectorAll('a[href]').forEach((a) => {
+    const raw = a.getAttribute('href');
+    if (!raw || !APP_PAGE_RE.test(raw)) return;
+    a.addEventListener('click', () => {
+      const base = (a.getAttribute('href') || raw).split('?')[0].split('#')[0];
+      a.setAttribute('href', `${base}?v=${Date.now()}`);
+    });
+  });
+}
+
 document.getElementById('langToggle')?.addEventListener('click', () => {
   prefs.lang = prefs.lang === 'sk' ? 'en' : 'sk';
   localStorage.setItem('xtb-lang', prefs.lang);
@@ -344,6 +401,9 @@ document.getElementById('themeToggle')?.addEventListener('click', () => {
   applyPrefs();
 });
 
+bindAppDropdown();
+stripCacheBustFromAddress();
+bindCacheBustLinks();
 applyPrefs();
 </script>
 </body>
